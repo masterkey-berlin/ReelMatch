@@ -450,3 +450,61 @@ ConfigMaps:
           - npm ci                               - Login to Docker Hub                      - Configure K8s Context
           - npm run lint                         - Build & Tag Image                        - terraform init
           - npm test                             - Push Image                               - terraform apply
+
+
+## Monolithisches Backend für "Vivid-Connect" (Node.js/Express.js)
+
+vivid-connect-backend/
+├── src/
+│   ├── api/                     # Haupt-Router für API-Versionierung (z.B. /api/v1)
+│   │   ├── index.js             # Sammelt alle untergeordneten Router
+│   │   ├── auth.routes.js       # Routen für Registrierung, Login (MVP: sehr einfach)
+│   │   ├── users.routes.js      # Routen für Nutzerprofile, Video-Intros
+│   │   ├── rooms.routes.js      # Routen für Themenräume
+│   │   ├── posts.routes.js      # Routen für Video-Posts in Räumen
+│   │   ├── matches.routes.js    # Routen für Interessenbekundungen, Matches
+│   │   └── chats.routes.js      # Routen für Chat-Nachrichten
+│   │
+│   ├── controllers/             # Controller-Logik (Request-Handling, Validierung, Service-Aufrufe)
+│   │   ├── auth.controller.js
+│   │   ├── user.controller.js
+│   │   ├── room.controller.js
+│   │   ├── post.controller.js
+│   │   ├── match.controller.js
+│   │   └── chat.controller.js
+│   │
+│   ├── services/                # Geschäftslogik, komplexere Operationen (Abstraktion von Controllern)
+│   │   ├── auth.service.js      # User-Erstellung, Login-Prüfung
+│   │   ├── user.service.js      # Profil-Updates, Video-Intro-Handling
+│   │   ├── video.service.js     # Logik für Video-Upload, -Speicherung, -Metadaten
+│   │   ├── room.service.js      # Erstellen/Abrufen von Räumen
+│   │   ├── post.service.js      # Erstellen/Abrufen von Video-Posts
+│   │   ├── matching.service.js  # Logik zur Erstellung von Matches
+│   │   └── chat.service.js      # Senden/Empfangen von Chat-Nachrichten
+│   │
+│   ├── models/                  # Datenbankmodelle oder Datenzugriffsschicht (DAL)
+│   │   ├── user.model.js        # DB-Operationen für User
+│   │   ├── room.model.js
+│   │   ├── post.model.js
+│   │   ├── match.model.js
+│   │   ├── chat.model.js
+│   │   └── db.js                # Datenbankverbindung (z.B. pg Pool-Konfiguration)
+│   │
+│   ├── middleware/              # Express Middleware
+│   │   ├── auth.middleware.js   # JWT-Validierung (später, MVP vielleicht ohne)
+│   │   └── errorHandler.js      # Globale Fehlerbehandlung
+│   │   └── upload.middleware.js # Multer-Konfiguration für Video-Uploads
+│   │
+│   ├── config/                  # Konfigurationsdateien
+│   │   └── index.js             # Lädt Umgebungsvariablen (DB-URL, JWT_SECRET, Port etc.)
+│   │
+│   └── app.js                   # Haupt-Express-Anwendung (Middleware einbinden, Router einbinden)
+│   └── server.js                # Startet den HTTP-Server, lauscht auf Port
+│
+├── public/                    # (Optional) Für statische Dateien, falls das Backend welche direkt ausliefert
+├── uploads/                   # (MVP) Verzeichnis zum Speichern hochgeladener Videos (muss per Volume gemountet werden)
+│
+├── package.json
+├── package-lock.json
+└── .env (nicht versionieren!) # Umgebungsvariablen für lokale Entwicklung
+└── .gitignore
