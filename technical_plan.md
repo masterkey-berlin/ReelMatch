@@ -1,6 +1,6 @@
 # Abschlußprojekt: Detaillierte Technische Planung für Vivid-Connect: "Kurzvideo-Intro & Themen-Speed-Dating" (MVP)
 
-**Dokument:** technical_plan_project7.md
+**Dokument:** technical_plan.md
 
 ---
 

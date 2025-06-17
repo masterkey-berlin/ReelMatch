@@ -10,7 +10,7 @@ Die Idee hinter "Vivid-Connect" ist es, eine authentischere und interaktivere Al
 
 Eine detaillierte technische Konzeption und Umsetzungsplanung für das Projekt (MVP) befindet sich im folgenden Dokument:
 
-➡️ **[Technische Planungsdokumentation (technical_plan_project7.md)](./technical_plan.md)**
+➡️ **[Technische Planungsdokumentation (technical_plan.md)](./technical_plan.md)**
 
 
 
