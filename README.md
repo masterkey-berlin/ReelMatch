@@ -32,3 +32,11 @@ Die Umsetzung des im Planungsdokument beschriebenen Minimum Viable Product (MVP)
 ---
 
 Dieses Repository wird im Laufe des Projekts mit dem Quellcode für das Frontend, Backend, Docker-Konfigurationen, Kubernetes-Manifeste, Terraform-Skripte und die CI/CD-Pipeline gefüllt.
+
+
+## Definition of Done (DoD)
+
+Für dieses Projekt wurde eine detaillierte **Definition of Done (DoD)** erarbeitet, um sicherzustellen, dass alle Arbeitspakete (User Stories, Tasks) einen einheitlichen Qualitätsstandard erfüllen, bevor sie als "fertig" gelten.
+
+Die vollständige DoD finden Sie hier:
+➡️ **[Definition of Done (DoD)](./DEFINITION_OF_DONE.md)**
