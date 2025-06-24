@@ -40,3 +40,21 @@ Für dieses Projekt wurde eine detaillierte **Definition of Done (DoD)** erarbei
 
 Die vollständige DoD finden Sie hier:
 ➡️ **[Definition of Done (DoD)](./DEFINITION_OF_DONE.md)**
+
+## Product Backlog
+
+Der initiale Product Backlog für das Projekt wurde erstellt und enthält die bekannten Anforderungen, User Stories, technischen Aufgaben und deren Priorisierung für das Minimum Viable Product (MVP).
+
+➡️ **Das Product Backlog befindet sich in meinem [Jira Board]**
+
+Dieses Backlog ist ein lebendes Dokument und wird im Laufe des Projekts kontinuierlich verfeinert und aktualisiert.
+
+## Technische Planung
+
+Eine detaillierte technische Konzeption und Umsetzungsplanung für das Projekt (MVP) befindet sich im folgenden Dokument:
+
+➡️ **[Technische Planungsdokumentation (technical_plan.md)](./technical_plan.md)**
+
+## Nächste Schritte
+
+Beginn der Umsetzung der hochpriorisierten Product Backlog Items aus dem Backlog in Form eines Sprints von jeweils 1 Woche länge.
