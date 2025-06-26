@@ -507,4 +507,13 @@ vivid-connect-backend/
 ├── package.json
 ├── package-lock.json
 └── .env (nicht versionieren!) # Umgebungsvariablen für lokale Entwicklung
-└── .gitignore
+└── .gitigno
+
+
+
+
+![Screenshot 6](image-examples/Screenshot%202025-06-26%20113251.png)
+![Screenshot 7](image-examples/Screenshot%202025-06-26%20113340.png)
+![Screenshot 8](image-examples/Screenshot%202025-06-26%20113451.png)
+![Screenshot 9](image-examples/Screenshot%202025-06-26%20113503.png)
+![Screenshot 10](image-examples/Screenshot%202025-06-26%20113552.png)

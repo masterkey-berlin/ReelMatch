@@ -58,3 +58,10 @@ Eine detaillierte technische Konzeption und Umsetzungsplanung für das Projekt (
 ## Nächste Schritte
 
 Beginn der Umsetzung der hochpriorisierten Product Backlog Items aus dem Backlog in Form eines Sprints von jeweils 1 Woche länge.
+
+## Sprint 1
+
+## Sprint Goal: 
+"Am Ende von Sprint 1 kann sich ein Nutzer rudimentär 'registrieren' (Username speichern), ein Video-Intro hochladen und dieses in einer einfachen Profilansicht sehen. Die technische Basis (Projekt-Setup, DB-Schema) ist gelegt."
+**Link zum Produc-/Sprintbacklog:
+[https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-51]**
