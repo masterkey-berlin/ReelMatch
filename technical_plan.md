@@ -1,4 +1,4 @@
-# Abschlußprojekt: Detaillierte Technische Planung für Vivid-Connect: "Kurzvideo-Intro & Themen-Speed-Dating" (MVP)
+# Abschlußprojekt: Detaillierte Technische Planung für ReelMatch: "Kurzvideo-Intro & Themen-Speed-Dating" (MVP)
 
 **Dokument:** technical_plan.md
 
@@ -148,7 +148,7 @@ Innerhalb des Backends:
 - db-svc (ClusterIP): Zielt auf Datenbank Pod, Port 5432.
 
 **Ingress:**
-- Host: vivid-connect.local (oder ähnlich für lokale Tests).
+- Host: ReelMatch.local (oder ähnlich für lokale Tests).
 - Pfade:
   - `/` -> frontend-svc Port 80
   - `/api/` -> backend-svc Port (z.B. 3000)
@@ -452,9 +452,9 @@ ConfigMaps:
           - npm test                             - Push Image                               - terraform apply
 
 
-## Monolithisches Backend für "Vivid-Connect" (Node.js/Express.js)
+## Monolithisches Backend für "ReelMatch" (Node.js/Express.js)
 
-vivid-connect-backend/
+ReelMatch-backend/
 ├── src/
 │   ├── api/                     # Haupt-Router für API-Versionierung (z.B. /api/v1)
 │   │   ├── index.js             # Sammelt alle untergeordneten Router

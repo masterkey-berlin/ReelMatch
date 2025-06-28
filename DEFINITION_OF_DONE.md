@@ -1,4 +1,4 @@
-## Definition of Done (DoD) für "vivid-connect" (Projekt: Kurzvideo-Intro & Themen-Speed-Dating)
+## Definition of Done (DoD) für "ReelMatch" (Projekt: Kurzvideo-Intro & Themen-Speed-Dating)
 
 Diese Definition of Done (DoD) beschreibt die Kriterien, die ein Backlog-Element (User Story, Task, Bugfix) erfüllen muss, um als "fertig" zu gelten. Sie dient als Qualitäts-Checkliste für die Entwicklung.
 

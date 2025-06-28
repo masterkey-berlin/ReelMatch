@@ -1,10 +1,10 @@
-# Vivid-Connect: (Arbeitstitel für Projekt "Kurzvideo-Intro & Themen-Speed-Dating")
+# ReelMatch: (Arbeitstitel für Projekt "Kurzvideo-Intro & Themen-Speed-Dating")
 
 Willkommen zum Abschlussprojekt! Dieses Repository dokumentiert die Planung und (zukünftige) Entwicklung einer innovativen Dating-App, die auf Kurzvideo-Intros und themenbasiertem Kennenlernen basiert.
 
 ## Projektübersicht
 
-Die Idee hinter "Vivid-Connect" ist es, eine authentischere und interaktivere Alternative zu herkömmlichen Dating-Apps zu bieten. Nutzer können sich durch kurze Videos vorstellen und über gemeinsame Interessen in thematischen "Video-Diskussionsräumen" austauschen, bevor ein direkter Kontakt entsteht.
+Die Idee hinter "ReelMatch" ist es, eine authentischere und interaktivere Alternative zu herkömmlichen Dating-Apps zu bieten. Nutzer können sich durch kurze Videos vorstellen und über gemeinsame Interessen in thematischen "Video-Diskussionsräumen" austauschen, bevor ein direkter Kontakt entsteht.
 
 ## Technische Planung
 
@@ -66,4 +66,4 @@ Beginn der Umsetzung der hochpriorisierten Product Backlog Items aus dem Backlog
 **Link zum Produc-/Sprintbacklog:
 [https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-51]**
 
-## Renamed the Project from Vivid-Connect in to ReelMatch, because its better to remember.
+## Renamed the Project from ReelMatch in to ReelMatch, because its better to remember.
