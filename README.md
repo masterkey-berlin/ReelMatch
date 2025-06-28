@@ -65,3 +65,5 @@ Beginn der Umsetzung der hochpriorisierten Product Backlog Items aus dem Backlog
 "Am Ende von Sprint 1 kann sich ein Nutzer rudimentär 'registrieren' (Username speichern), ein Video-Intro hochladen und dieses in einer einfachen Profilansicht sehen. Die technische Basis (Projekt-Setup, DB-Schema) ist gelegt."
 **Link zum Produc-/Sprintbacklog:
 [https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-51]**
+
+## Renamed the Project from Vivid-Connect to ReelMatch, because its better to remember.
