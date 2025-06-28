@@ -66,4 +66,4 @@ Beginn der Umsetzung der hochpriorisierten Product Backlog Items aus dem Backlog
 **Link zum Produc-/Sprintbacklog:
 [https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-51]**
 
-## Renamed the Project from Vivid-Connect to ReelMatch, because its better to remember.
+## Renamed the Project from Vivid-Connect in to ReelMatch, because its better to remember.
