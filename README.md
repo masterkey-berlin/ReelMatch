@@ -69,3 +69,28 @@ Beginn der Umsetzung der hochpriorisierten Product Backlog Items aus dem Backlog
 ## Renamed the Project from ReelMatch in to ReelMatch, because its better to remember. 
 
 ## Changing Remote-URL was successful
+
+
+
+## 🚀 Projekt-Cockpit
+
+Willkommen im Cockpit für "ReelMatch"! Dies ist die zentrale Anlaufstelle für alle wichtigen Ressourcen und Routinen meines Projekts.
+
+| Ressource                 | Link / Information                                            |
+| ------------------------- | ------------------------------------------------------------- |
+| **GitHub Repository**     | [github.com/dein-username/reelmatch](https://github.com/masterkey-berlin/ReelMatch]) |
+| **Projektmanagement-Board** | [Zum Jira-Board]([https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-16])       |
+| **Meeting-Raum**          | [Virtueller Raum (Google Meet)]([Nicht vorhanden!!!]) |
+| **Daily Scrum**           | Täglich, Mo-Fr um 09:15 Uhr                                   |
+
+---
+### Der Sinn meines Daily Scrums
+
+Das Daily Scrum ist ein 15-minütiges Event für die Entwickler des Scrum Teams. Der Zweck des Daily Scrums ist es, den Fortschritt in Richtung des Sprint-Ziels zu überprüfen und den Sprint-Backlog bei Bedarf anzupassen, um den Arbeitsplan für den nächsten Arbeitstag abzustimmen. 
+
+Als Einzelperson nutze ich diesen täglichen Check-in, um:
+1.  Meinen Fortschritt vom Vortag zu bewerten.
+2.  Meinen Plan für den heutigen Tag zu konkretisieren.
+3.  Eventuelle Hindernisse (Impediments) frühzeitig zu identifizieren und Lösungsstrategien zu überlegen.
+
+Es ist keine Status-Runde für den Product Owner oder Scrum Master, sondern ein kurzes Planungsmeeting für das Team selbst, um die Zusammenarbeit und Leistung zu optimieren und eventuelle Hindernisse (Impediments) frühzeitig zu identifizieren.
