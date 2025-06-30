@@ -1,0 +1,13 @@
+# Standardmäßig LF für alle Textdateien
+* text=auto
+
+# Erzwinge LF für JS/JSON/MD/TS/TSX/ENV-Dateien
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.env  text eol=lf
+
+# Ignoriere Zeilenenden in node_modules
+node_modules/** -text
