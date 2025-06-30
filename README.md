@@ -78,8 +78,8 @@ Willkommen im Cockpit für "ReelMatch"! Dies ist die zentrale Anlaufstelle für 
 
 | Ressource                 | Link / Information                                            |
 | ------------------------- | ------------------------------------------------------------- |
-| **GitHub Repository**     | [github.com/dein-username/reelmatch](https://github.com/masterkey-berlin/ReelMatch]) |
-| **Projektmanagement-Board** | [Zum Jira-Board]([https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-16])       |
+| **GitHub Repository**     | [https://github.com/masterkey-berlin/ReelMatch]() |
+| **Projektmanagement-Board** | [https://tn-team-z6sbz38d.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?selectedIssue=SCRUM-16]      |
 | **Meeting-Raum**          | [Virtueller Raum (Google Meet)]([Nicht vorhanden!!!]) |
 | **Daily Scrum**           | Täglich, Mo-Fr um 09:15 Uhr                                   |
 
