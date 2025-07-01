@@ -34,7 +34,7 @@ function RoomView() {
       <h3>Bestehende Posts</h3>
       {posts.length > 0 ? (
         posts.map(post => (
-          <div key={post.post_id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
+          <div key={post.id} style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}>
             <p><strong>Gepostet von:</strong> {post.username}</p>
             {post.text_content && <p>{post.text_content}</p>}
             <video width="320" height="240" controls>

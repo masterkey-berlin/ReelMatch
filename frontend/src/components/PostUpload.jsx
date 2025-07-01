@@ -15,6 +15,7 @@ function PostUpload({ roomId, userId }) {
     formData.append('textContent', textContent);
 
     try {
+      console.log('roomId:', roomId, 'userId:', userId);
       await apiClient.post(`/rooms/${roomId}/users/${userId}/posts`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
