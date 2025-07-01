@@ -7,4 +7,7 @@ const router = Router();
 // 'introVideo' ist der Name des Formularfelds, das die Datei enthält
 router.post('/:userId/intro-video', upload.single('introVideo'), userController.uploadIntroVideo);
 
+// Neue GET-Route für das User-Profil
+router.get('/:userId/profile', userController.getProfile);
+
 export default router;
