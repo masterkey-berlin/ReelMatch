@@ -25,8 +25,8 @@ function RoomList() {
       <h2>Themenräume</h2>
       <ul>
         {rooms.map(room => (
-          <li key={room.room_id}>
-            <Link to={`/rooms/${room.room_id}`}>
+          <li key={room.id}>
+            <Link to={`/rooms/${room.id}`}>
               <h3>{room.name}</h3>
               <p>{room.description}</p>
             </Link>
