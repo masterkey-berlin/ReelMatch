@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url'; // Wichtig für __dirname in ES Modules
 
 import authRoutes from './api/auth.routes.js';
 import userRoutes from './api/users.routes.js';
+import roomRoutes from './api/rooms.routes.js'; // Neue Zeile
 
 const app = express();
 
@@ -27,5 +28,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/rooms', roomRoutes); // Neue Zeile
 
 export default app;
