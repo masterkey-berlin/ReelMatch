@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Register from './components/Register';
 import Profile from './components/Profile';
+import RoomList from './components/RoomList'; // Neu
+import RoomView from './components/RoomView'; // Neu
 
 function App() {
   return (
@@ -10,16 +12,18 @@ function App() {
         <nav>
           <ul>
             <li><Link to="/register">Register</Link></li>
-            {/* Im MVP gehen wir davon aus, dass wir nach der Registrierung die User-ID kennen
-                und direkt zum Profil navigieren. In einer echten App gäbe es einen Login. */}
+            <li><Link to="/rooms">Themenräume</Link></li>
+            {/* Im MVP: Simulierter Link zum eigenen Profil */}
+            <li><Link to="/profile/1">Mein Profil (User 1)</Link></li>
           </ul>
         </nav>
         <hr />
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/profile/:userId" element={<Profile />} />
-          {/* Default Route */}
-          <Route path="/" element={<Register />} />
+          <Route path="/rooms" element={<RoomList />} /> {/* Neu */}
+          <Route path="/rooms/:roomId" element={<RoomView />} /> {/* Neu */}
+          <Route path="/" element={<RoomList />} /> {/* Default auf RoomList */}
         </Routes>
       </div>
     </Router>
