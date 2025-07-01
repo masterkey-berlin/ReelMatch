@@ -2,14 +2,18 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = function(knex) {
-  
-};
+export async function up(knex) {
+  await knex.schema.createTable('theme_rooms', (table) => {
+    table.increments('id').primary();
+    table.string('name').notNullable();
+    table.text('description');
+  });
+}
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function(knex) {
-  
-};
+export async function down(knex) {
+  await knex.schema.dropTable('theme_rooms');
+}
