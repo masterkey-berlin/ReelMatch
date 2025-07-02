@@ -40,3 +40,28 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving user profile.' });
   }
 };
+
+// Hier die neue Funktion einfügen:
+export const updateProfile = async (req, res) => {
+  const { userId } = req.params;
+  const { short_bio } = req.body;
+
+  if (short_bio === undefined) {
+    return res.status(400).json({ message: 'short_bio is required in the request body.' });
+  }
+
+  try {
+    const updateData = { short_bio };
+    const updatedUser = await UserModel.updateUser(userId, updateData);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const { hashed_password, ...profileData } = updatedUser;
+    res.status(200).json({ message: 'Profile updated successfully.', user: profileData });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Error updating user profile.' });
+  }
+};

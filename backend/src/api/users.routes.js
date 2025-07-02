@@ -10,4 +10,7 @@ router.post('/:userId/intro-video', upload.single('introVideo'), userController.
 // Neue GET-Route für das User-Profil
 router.get('/:userId/profile', userController.getProfile);
 
+// Neue Route für das Profil-Update
+router.put('/:userId/profile', userController.updateProfile);
+
 export default router;

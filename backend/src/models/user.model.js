@@ -29,3 +29,20 @@ export const findUserById = async (userId) => {
   );
   return result.rows[0];
 };
+
+// Hier die neue Funktion einfügen:
+export const updateUser = async (userId, userData) => {
+  // Nimmt ein Objekt mit den zu aktualisierenden Feldern entgegen (z.B. { short_bio: 'neuer text' })
+  const fields = Object.keys(userData);
+  const values = Object.values(userData);
+
+  const setString = fields.map((field, index) => `${field} = $${index + 2}`).join(', ');
+
+  if (fields.length === 0) {
+    return findUserById(userId);
+  }
+
+  const query = `UPDATE users SET ${setString} WHERE user_id = $1 RETURNING *`;
+  const result = await pool.query(query, [userId, ...values]);
+  return result.rows[0];
+};
