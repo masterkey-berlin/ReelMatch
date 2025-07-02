@@ -11,5 +11,30 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend # Sagt Docker Compose, dass es das Dockerfile im ./backend Ordner nutzen soll
+    container_name: reelmatch_backend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/uploads:/usr/src/app/uploads # Mapped den lokalen 'uploads' Ordner in den Container
+    environment:
+      # Hier geben wir die DB-Verbindungsinfos an. Wichtig: Der Host ist jetzt der Service-Name 'postgres-db'
+      - DB_HOST=postgres-db
+      - DB_USER=reelmatch_user
+      - DB_PASSWORD=reelmatch_password
+      - DB_NAME=reelmatch_dev
+    depends_on:
+      - postgres-db # Stellt sicher, dass die DB vor dem Backend startet
+
+  frontend:
+    build: ./frontend
+    container_name: reelmatch_frontend
+    ports:
+      - "8080:80" # Mappt den Port 80 des Nginx-Containers auf Port 8080 deines Computers
+    depends_on:
+      - backend # Stellt sicher, dass das Backend vor dem Frontend gestartet wird
+
 volumes:
   postgres_data:
