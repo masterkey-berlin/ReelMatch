@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import apiClient from '../services/api';
 
-function VideoUpload({ userId }) {
+// Die Komponente akzeptiert jetzt eine onUploadSuccess-Funktion als Prop
+function VideoUpload({ userId, onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -11,35 +13,42 @@ function VideoUpload({ userId }) {
 
   const handleUpload = async () => {
     if (!file) {
-      setMessage('Please select a file first.');
+      setMessage('Bitte wähle eine Datei aus.');
       return;
     }
+    setIsUploading(true);
     setMessage('Uploading...');
 
     const formData = new FormData();
-    // 'introVideo' muss mit dem Feldnamen in upload.single('introVideo') im Backend übereinstimmen
-    formData.append('introVideo', file); 
+    formData.append('introVideo', file);
 
     try {
-      // Axios-Header für multipart/form-data anpassen
       const response = await apiClient.post(`/users/${userId}/intro-video`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       setMessage(response.data.message);
-      // Optional: Lade die Seite neu oder aktualisiere den Profilstatus, um das Video anzuzeigen
-      window.location.reload(); 
+      
+      // Rufe die übergebene Funktion auf, um die Eltern-Komponente zu benachrichtigen
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
+
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Upload failed.');
+      setMessage(error.response?.data?.message || 'Upload fehlgeschlagen.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
     <div>
-      <input type="file" accept="video/*" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload Video</button>
-      {message && <p>{message}</p>}
+      <input type="file" accept="video/*" onChange={handleFileChange} disabled={isUploading} />
+      <button onClick={handleUpload} disabled={isUploading}>
+        {isUploading ? 'Uploading...' : 'Upload Video'}
+      </button>
+      {message && <p style={{marginTop: '1rem'}}>{message}</p>}
     </div>
   );
 }
