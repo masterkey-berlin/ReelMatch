@@ -3,9 +3,11 @@ import { useParams } from 'react-router-dom';
 import apiClient from '../services/api';
 import VideoUpload from './VideoUpload';
 import styles from './Profile.module.css';
+import { useAuth } from '../context/AuthContext';
 
 function Profile() {
   const { userId } = useParams();
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
   const [bio, setBio] = useState('');
@@ -97,6 +99,10 @@ function Profile() {
         <h3>Video-Intro hochladen / aktualisieren</h3>
         <VideoUpload userId={userId} onUploadSuccess={onUploadSuccess} />
       </div>
+
+      {user && user.user_id == userId && (
+        <p style={{ color: 'limegreen' }}>Das ist dein eigenes Profil!</p>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import Register from './components/Register';
 import Profile from './components/Profile';
 import RoomList from './components/RoomList';
 import RoomView from './components/RoomView';
+import Login from './components/Login';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="profile/:userId" element={<Profile />} />
           <Route path="rooms" element={<RoomList />} />
           <Route path="rooms/:roomId" element={<RoomView />} />
+          <Route path="login" element={<Login />} />
           <Route path="*" element={<div><h2>404 - Seite nicht gefunden</h2></div>} />
         </Route>
       </Routes>

@@ -3,41 +3,41 @@ import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-function Register() {
+function Login() {
   const [username, setUsername] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     try {
-      const response = await apiClient.post('/auth/register', { username });
-      login(response.data); // User direkt einloggen
-      setMessage(`Registration successful! Welcome, ${response.data.username}.`);
-      navigate('/rooms'); // Nur eine Weiterleitung!
+      const response = await apiClient.post('/auth/login', { username });
+      login(response.data);
+      setMessage('Login erfolgreich!');
+      navigate('/rooms');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Registration failed.');
+      setMessage(error.response?.data?.message || 'Login fehlgeschlagen.');
     }
   };
 
   return (
     <div>
-      <h2>Register</h2>
+      <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Enter username"
+          onChange={e => setUsername(e.target.value)}
+          placeholder="Benutzername"
           required
         />
-        <button type="submit">Register</button>
+        <button type="submit">Login</button>
       </form>
       {message && <p>{message}</p>}
     </div>
   );
 }
 
-export default Register;
+export default Login;

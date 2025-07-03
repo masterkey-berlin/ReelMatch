@@ -3,14 +3,15 @@ import { useParams } from 'react-router-dom';
 import apiClient from '../services/api';
 import PostUpload from './PostUpload'; // Angenommen, PostUpload ist eine eigene Komponente
 import styles from './RoomView.module.css';
+import { useAuth } from '../context/AuthContext';
 
 function RoomView() {
   const { roomId } = useParams();
   const [posts, setPosts] = useState([]);
   const [roomName, setRoomName] = useState(''); // Um den Raumnamen anzuzeigen
   const [loading, setLoading] = useState(true);
-  // Im MVP setzen wir die userId statisch, in einer echten App käme sie aus dem Login-State
-  const currentUserId = 1; 
+  const { user } = useAuth();
+  const currentUserId = user && user.user_id ? user.user_id : null; // Im MVP setzen wir die userId statisch, in einer echten App käme sie aus dem Login-State
 
   const fetchPosts = async () => {
     try {

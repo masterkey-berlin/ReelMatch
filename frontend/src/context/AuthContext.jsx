@@ -1,12 +1,14 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 // 1. Erstelle den Context
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 // 2. Erstelle den Provider - eine Komponente, die den Zustand verwaltet
 export const AuthProvider = ({ children }) => {
-  // Wir speichern den User im State. Initial ist niemand eingeloggt (null).
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('reelmatch_user');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   // Funktion zum "Einloggen" (im MVP nach der Registrierung)
   const login = (userData) => {
@@ -21,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('reelmatch_user');
   };
 
-  // Wir geben den User-Zustand und die Login/Logout-Funktionen an alle Kinder weiter
+  // Im Context bereitstellen:
   const value = { user, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
