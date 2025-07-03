@@ -25,7 +25,7 @@ function RoomList() {
       <h2 className="roomlist-title">Entdecke Themenräume</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
         {rooms.map(room => (
-          <Link to={`/rooms/${room.room_id}`} key={room.room_id} style={{ textDecoration: 'none' }}>
+          <Link to={`/rooms/${room.id}`} key={room.id} style={{ textDecoration: 'none' }}>
             <div className="card">
               <h3>{room.name}</h3>
               <p className="text-muted">{room.description}</p>
