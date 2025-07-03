@@ -15,7 +15,6 @@ function Login() {
     try {
       const response = await apiClient.post('/auth/login', { username });
       login(response.data);
-      setMessage('Login erfolgreich!');
       navigate('/rooms');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Login fehlgeschlagen.');
