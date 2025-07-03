@@ -11,3 +11,5 @@ yarn-error.log*
 
 # Sonstiges
 .DS_Store
+
+uploads/*.mp4

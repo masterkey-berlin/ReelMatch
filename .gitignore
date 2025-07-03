@@ -20,3 +20,6 @@ build/
 # Betriebssystem-spezifisch
 .DS_Store
 Thumbs.db
+
+#sonstiges
+image-examples
