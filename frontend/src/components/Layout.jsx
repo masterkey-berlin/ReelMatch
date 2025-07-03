@@ -2,7 +2,8 @@
 import React from 'react';
 import { Link, Outlet, NavLink } from 'react-router-dom';
 import styles from './Layout.module.css';
-import logo from '../assets/logo.png'; // Dein Logo muss in src/assets/ liegen
+import logo from '../assets/logo.png';
+import Footer from './Footer'; // <-- NEU: Importieren
 
 const Layout = () => {
   return (
@@ -26,6 +27,7 @@ const Layout = () => {
       <main className={styles.mainContent}>
         <Outlet />
       </main>
+      <Footer /> {/* <-- NEU: Footer am Ende einfügen */}
     </div>
   );
 };

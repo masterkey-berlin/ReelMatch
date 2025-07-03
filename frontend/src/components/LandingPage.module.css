@@ -4,9 +4,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Versucht, die Höhe des Viewports abzüglich des Headers zu füllen */
-  min-height: calc(100vh - 70px - 80px); /* 100vh - Header-Höhe - Main-Padding */
+  flex: 1; /* Wichtig: Sagt diesem Container, er soll den verfügbaren Platz im mainContent füllen */
   text-align: center;
+  padding: 20px;
 }
 
 .heroLogo {
@@ -14,6 +14,11 @@
   height: 120px;
   margin-bottom: 1.5rem;
   filter: drop-shadow(0 0 1.5rem var(--primary-glow));
+}
+
+.heroTitle, .heroSubtitle {
+  font-family: 'Kalam', cursive;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
 }
 
 .heroTitle {
@@ -25,7 +30,7 @@
 
 .heroSubtitle {
   font-size: 1.25rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   margin-top: 0.5rem;
   max-width: 500px;
 }

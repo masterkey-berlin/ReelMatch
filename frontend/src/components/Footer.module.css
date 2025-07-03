@@ -1,0 +1,10 @@
+.footer {
+  width: 100%;
+  padding: 20px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem; /* 14px */
+  border-top: 1px solid var(--border-color);
+  background-color: var(--container-bg); /* Gib dem Footer dieselbe Farbe wie dem Header */
+  margin-top: auto; /* Wichtig, damit der Footer unten bleibt */
+}

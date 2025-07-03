@@ -1,14 +1,15 @@
-/* Layout.module.css */
+/* frontend/src/components/Layout.module.css */
+
 .appRoot {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh; /* Wichtig: Nimmt mindestens die volle Höhe des Viewports ein */
 }
 
 .header {
   background-color: var(--container-bg);
   border-bottom: 1px solid var(--border-color);
-  position: sticky;
+  position: sticky; /* Sticky Header bleibt erhalten */
   top: 0;
   z-index: 50;
   width: 100%;
@@ -38,24 +39,25 @@
   color: var(--text-muted);
   font-weight: bold;
   transition: color 0.2s ease;
-  padding-bottom: 5px; /* Platz für den unteren Rand */
-  border-bottom: 2px solid transparent; /* Platzhalter für den aktiven Zustand */
+  padding-bottom: 5px;
+  border-bottom: 2px solid transparent;
 }
 
 .navLink:hover {
   color: var(--text-main);
 }
 
-/* Stil für den aktiven Link */
 .activeLink {
   color: var(--text-main);
   border-bottom: 2px solid var(--primary-glow);
 }
 
 .mainContent {
-  flex: 1; /* Nimmt den restlichen Platz ein */
+  flex: 1; /* Wichtig: Dieser Bereich wächst, um den verfügbaren Platz zu füllen */
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding: 40px 20px;
+  display: flex; /* Optional, aber gut, um den Inhalt innerhalb des main-Bereichs zu zentrieren */
+  flex-direction: column;
 }
