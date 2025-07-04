@@ -62,3 +62,41 @@
   border-radius: 12px;
   background-color: #000;
 }
+
+button.deleteButton {
+  background-color: #dc3545 !important;
+  background: #dc3545 !important;
+  color: white !important;
+  border: none !important;
+  border-color: #dc3545 !important;
+  padding: 8px 12px !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  margin-top: 10px !important;
+}
+
+button.deleteButton:hover {
+  background-color: #c82333 !important;
+  background: #c82333 !important;
+  border-color: #c82333 !important;
+}
+
+.postCard button.deleteButton,
+button.deleteButton {
+  background-color: #dc3545 !important;
+  background: #dc3545 !important;
+  color: white !important;
+  border: none !important;
+  border-color: #dc3545 !important;
+  padding: 8px 12px !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  margin-top: 10px !important;
+}
+
+.postCard button.deleteButton:hover,
+button.deleteButton:hover {
+  background-color: #c82333 !important;
+  background: #c82333 !important;
+  border-color: #c82333 !important;
+}

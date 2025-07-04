@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import apiClient from '../services/api';
+import apiClient, { deletePostApi } from '../services/api'; // NEU: Import hinzufügen
 import PostUpload from './PostUpload'; // Angenommen, PostUpload ist eine eigene Komponente
 import styles from './RoomView.module.css';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +31,24 @@ function RoomView() {
     // z.B. setRoomName( fetchedRoomData.name )
     fetchPosts();
   }, [roomId]);
+
+  // NEU: Handle-Funktion für das Löschen
+  const handleDeletePost = async (postIdToDelete) => {
+    if (!postIdToDelete) {
+      alert('Fehler: Post-ID ist nicht vorhanden!');
+      return;
+    }
+
+    if (window.confirm('Bist du sicher, dass du diesen Post löschen möchtest?')) {
+      try {
+        await deletePostApi(roomId, postIdToDelete, user?.user_id);
+        fetchPosts(); // Liste neu laden
+      } catch (error) {
+        console.error('Failed to delete post:', error);
+        alert('Löschen fehlgeschlagen. Du kannst nur deine eigenen Posts löschen.');
+      }
+    }
+  };
 
   if (loading) return <p className="card text-center">Lade Posts...</p>;
 
@@ -64,6 +82,15 @@ function RoomView() {
                  <video className={styles.postVideo} controls>
                    <source src={`http://localhost:3001/${post.video_path.replace(/\\/g, '/')}`} type="video/mp4" />
                  </video>
+              )}
+              {/* NEU: Delete-Button nur für eigene Posts */}
+              {user?.user_id === post.user_id && (
+                <button
+                  onClick={() => handleDeletePost(post.id)}
+                  className={styles.deleteButton}
+                >
+                  Löschen
+                </button>
               )}
             </div>
           ))

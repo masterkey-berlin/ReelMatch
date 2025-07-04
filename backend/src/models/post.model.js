@@ -16,3 +16,18 @@ export const createPost = async ({ userId, roomId, videoPath, textContent }) => 
   );
   return result.rows[0];
 };
+
+// NEU: Funktion zum Finden eines Posts
+export const findPostById = async (postId) => {
+  const result = await pool.query('SELECT * FROM video_posts WHERE id = $1', [postId]);
+  return result.rows[0];
+};
+
+// NEU: Funktion zum Löschen eines Posts
+export const deletePost = async (postId, userId) => {
+  const result = await pool.query(
+    'DELETE FROM video_posts WHERE id = $1 AND user_id = $2 RETURNING *',
+    [postId, userId]
+  );
+  return result.rows[0];
+};
