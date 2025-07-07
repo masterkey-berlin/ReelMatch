@@ -1,0 +1,345 @@
+.swipe-interface {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px 10px;
+  height: calc(100vh - 70px - 70px); /* Viewport minus Header (70px) minus Footer (70px) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.video-profile-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  height: calc(100vh - 140px - 40px); /* Passt in den verfügbaren Platz minus Padding */
+  max-height: 650px; /* Maximale Höhe angemessen begrenzen */
+  display: flex;
+  flex-direction: column;
+}
+
+.video-profile-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Intro Video Section */
+.intro-video-section {
+  padding: 15px 15px 0;
+  flex-shrink: 0;
+}
+
+.intro-video-section h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+/* Video Thumbnail Overlay für SwipeInterface */
+.video-thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.play-button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.play-button.small {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 0;
+}
+
+.play-button:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.play-icon {
+  font-size: 28px;
+  color: #333;
+  margin-left: 4px;
+}
+
+.play-button.small .play-icon {
+  font-size: 16px;
+}
+
+.video-info-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  text-align: center;
+  color: white;
+}
+
+.video-owner-name {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.video-room-name {
+  display: block;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.post-thumbnail .video-info-overlay {
+  display: none;
+}
+
+.intro-video {
+  width: 100%;
+  height: 180px; /* Kleinere Höhe */
+  object-fit: cover;
+  display: block;
+}
+
+/* User Info */
+.user-info {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.user-info h2 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.age {
+  color: #666;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.bio {
+  color: #444;
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.interest-tag {
+  background: #f0f4ff;
+  color: #4a5568;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+}
+
+/* Recent Posts Section */
+.recent-posts-section {
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  flex: 1; /* Nimmt verfügbaren Platz ein */
+  overflow-y: auto; /* Falls zu viele Posts, scrollen */
+  min-height: 0; /* Erlaubt Flexbox-Schrumpfung */
+}
+
+.recent-posts-section h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+
+.post-item {
+  background: #f8f9fa;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.post-item:hover {
+  transform: scale(1.02);
+}
+
+.post-video-container {
+  position: relative;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+}
+
+.post-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.post-info {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.room-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.timestamp {
+  font-size: 11px;
+  color: #666;
+}
+
+/* Swipe Buttons */
+.swipe-buttons {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  margin-top: auto; /* Schiebt die Buttons nach unten */
+  background: white;
+  border-top: 1px solid #eee;
+  flex-shrink: 0; /* Verhindert Schrumpfung */
+}
+
+.swipe-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.swipe-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.swipe-btn.reject {
+  background: #ff4757;
+  color: white;
+}
+
+.swipe-btn.reject:hover:not(:disabled) {
+  background: #ff3742;
+  transform: translateY(-2px);
+}
+
+.swipe-btn.like {
+  background: #2ed573;
+  color: white;
+}
+
+.swipe-btn.like:hover:not(:disabled) {
+  background: #26de81;
+  transform: translateY(-2px);
+}
+
+.no-more-users {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.no-more-users h3 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 20px;
+}
+
+.no-more-users p {
+  color: #666;
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .swipe-interface {
+    padding: 10px;
+    max-width: 100%;
+  }
+  
+  .intro-video {
+    height: 200px;
+  }
+  
+  .intro-video-section,
+  .user-info,
+  .recent-posts-section {
+    padding: 15px;
+  }
+  
+  .posts-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .post-video-container {
+    height: 80px;
+  }
+  
+  .swipe-buttons {
+    padding: 15px;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .swipe-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+}

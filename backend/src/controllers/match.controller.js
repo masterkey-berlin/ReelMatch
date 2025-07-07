@@ -44,3 +44,49 @@ export const getMyMatches = async (req, res) => {
     res.status(500).json({ message: "Error fetching matches." });
   }
 };
+
+export const likeVideo = async (req, res) => {
+  const likerId = req.user.id; // User der das Video liked
+  const { videoOwnerId, videoId } = req.body; // Video Owner und Video ID
+
+  if (likerId === videoOwnerId) {
+    return res.status(400).json({ message: 'You cannot like your own video.' });
+  }
+
+  try {
+    // Video-Like loggen (hier könntest du später auch Video-Likes tracken)
+    console.log(`🎬 User ${likerId} liked video ${videoId} from user ${videoOwnerId}`);
+
+    // Automatisch Interest erstellen (wie beim Swipen)
+    const existingInterest = await InterestModel.findInterest(likerId, videoOwnerId);
+    if (existingInterest) {
+      return res.status(200).json({
+        message: 'Interest already expressed through previous like/swipe.',
+        isMatch: false
+      });
+    }
+
+    // Neues Interesse speichern
+    await InterestModel.createInterest(likerId, videoOwnerId);
+
+    // Prüfen, ob der andere Nutzer bereits Interesse bekundet hat (Match!)
+    const mutualInterest = await InterestModel.findInterest(videoOwnerId, likerId);
+    if (mutualInterest) {
+      // Match erstellen!
+      const newMatch = await MatchModel.createMatch(likerId, videoOwnerId);
+      return res.status(201).json({
+        message: 'It\'s a Match! 🎉 Your video like created a connection!',
+        isMatch: true,
+        match: newMatch
+      });
+    }
+
+    res.status(201).json({
+      message: 'Video liked! Interest expressed successfully.',
+      isMatch: false
+    });
+  } catch (error) {
+    console.error('Error liking video:', error);
+    res.status(500).json({ message: 'Error liking video.' });
+  }
+};

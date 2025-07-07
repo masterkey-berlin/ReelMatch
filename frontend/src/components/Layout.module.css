@@ -57,7 +57,7 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0; /* Kein Padding, da SwipeInterface ihr eigenes Padding hat */
   display: flex; /* Optional, aber gut, um den Inhalt innerhalb des main-Bereichs zu zentrieren */
   flex-direction: column;
 }

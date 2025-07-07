@@ -40,3 +40,115 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Globale Styles für das Match-System */
+.match-system-container {
+  min-height: calc(100vh - 200px);
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.page-title {
+  text-align: center;
+  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Button Styles */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #5a6fd8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+  background: #ecf0f1;
+  color: #2c3e50;
+  border: 1px solid #bdc3c7;
+}
+
+.btn-secondary:hover {
+  background: #d5dbdb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(189, 195, 199, 0.3);
+}
+
+.btn-success {
+  background: #2ed573;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #26de81;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+}
+
+.btn-danger {
+  background: #ff4757;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff3742;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  padding: 2em;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .match-system-container {
+    padding: 10px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .container {
+    padding: 0 10px;
+  }
+}

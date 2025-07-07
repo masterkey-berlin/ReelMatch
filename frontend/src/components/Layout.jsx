@@ -22,6 +22,12 @@ const Layout = () => {
             </NavLink>
             {user && user.user_id ? (
               <>
+                <NavLink to="/swipe" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+                  💕 Swipen
+                </NavLink>
+                <NavLink to="/matches" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+                  🔥 Matches
+                </NavLink>
                 <NavLink to={`/profile/${user.user_id}`} className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   Mein Profil
                 </NavLink>

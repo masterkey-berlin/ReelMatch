@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import apiClient, { deletePostApi } from '../services/api'; // NEU: Import hinzufügen
 import PostUpload from './PostUpload'; // Angenommen, PostUpload ist eine eigene Komponente
+import VideoCard from './VideoCard'; // Import für VideoCard hinzufügen
 import styles from './RoomView.module.css';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,7 +11,12 @@ function RoomView() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  const currentUserId = user && user.user_id ? user.user_id : null; // Im MVP setzen wir die userId statisch, in einer echten App käme sie aus dem Login-State
+  
+  // Debug: Zeige user info
+  console.log('RoomView - Current user:', user);
+  console.log('RoomView - User ID:', user?.user_id);
+  
+  const currentUserId = user && user.user_id ? user.user_id : 2; // Fallback auf user_id: 2 für temp auth
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -48,6 +54,14 @@ function RoomView() {
     }
   };
 
+  // NEU: Handle-Funktion für Video-Likes in Räumen
+  const handleVideoLike = (likeResponse) => {
+    if (likeResponse.isMatch) {
+      console.log('It\'s a match!', likeResponse);
+      // Match-Modal wird automatisch durch VideoCard angezeigt
+    }
+  };
+
   if (loading) return <p className="card text-center">Lade Posts...</p>;
 
   return (
@@ -65,7 +79,7 @@ function RoomView() {
         {posts.length > 0 ? (
           posts.map(post => (
             // Jeder Post ist eine eigene Karte
-            <div key={post.post_id} className={`card ${styles.postCard}`}>
+            <div key={post.id} className={`card ${styles.postCard}`}>
               <div className={styles.postHeader}>
                 <div className={styles.postAvatar}>{post.username.charAt(0).toUpperCase()}</div>
                 <div>
@@ -76,13 +90,25 @@ function RoomView() {
                 </div>
               </div>
               {post.text_content && <p className={styles.postContent}>{post.text_content}</p>}
-              {post.video_path && (
-                 <video className={styles.postVideo} controls>
-                   <source src={`http://localhost:3001/${post.video_path.replace(/\\/g, '/')}`} type="video/mp4" />
-                 </video>
+              {post.video_path && (              <VideoCard
+                video={{
+                  id: post.id,
+                  path: post.video_path,
+                  title: post.text_content || `Video in Raum ${roomId}`,
+                  description: post.text_content,
+                  created_at: post.created_at
+                }}
+                videoOwner={{
+                  id: post.user_id,
+                  username: post.username
+                }}
+                roomName={`Raum ${roomId}`}
+                showLikeButton={currentUserId !== post.user_id} // Eigene Videos nicht liken
+                onVideoLike={handleVideoLike}
+              />
               )}
               {/* NEU: Delete-Button nur für eigene Posts */}
-              {user?.user_id === post.user_id && (
+              {currentUserId === post.user_id && (
                 <button
                   onClick={() => handleDeletePost(post.id)}
                   className={styles.deleteButton}
