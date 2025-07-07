@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import apiClient from '../services/api';
 import VideoUpload from './VideoUpload';
@@ -14,7 +14,7 @@ function Profile() {
   const [isEditingBio, setIsEditingBio] = useState(false);
 
   // Funktion zum Abrufen der Profildaten
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await apiClient.get(`/users/${userId}/profile`);
       setProfile(response.data);
@@ -23,13 +23,13 @@ function Profile() {
       setError('Could not fetch profile.');
       console.error(err);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (userId) {
       fetchProfile();
     }
-  }, [userId]);
+  }, [userId, fetchProfile]);
 
   // Funktion zum Speichern der Bio
   const handleBioSubmit = async (e) => {

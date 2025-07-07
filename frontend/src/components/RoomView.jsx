@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import apiClient, { deletePostApi } from '../services/api'; // NEU: Import hinzufügen
 import PostUpload from './PostUpload'; // Angenommen, PostUpload ist eine eigene Komponente
@@ -8,12 +8,11 @@ import { useAuth } from '../context/AuthContext';
 function RoomView() {
   const { roomId } = useParams();
   const [posts, setPosts] = useState([]);
-  const [roomName, setRoomName] = useState(''); // Um den Raumnamen anzuzeigen
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const currentUserId = user && user.user_id ? user.user_id : null; // Im MVP setzen wir die userId statisch, in einer echten App käme sie aus dem Login-State
 
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       // Wir könnten hier auch eine Route für Raumdetails erstellen,
       // aber für jetzt holen wir nur die Posts.
@@ -24,13 +23,12 @@ function RoomView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [roomId]);
 
   useEffect(() => {
     // Hier könntest du auch den Raumnamen holen, wenn die API das unterstützt
-    // z.B. setRoomName( fetchedRoomData.name )
     fetchPosts();
-  }, [roomId]);
+  }, [roomId, fetchPosts]);
 
   // NEU: Handle-Funktion für das Löschen
   const handleDeletePost = async (postIdToDelete) => {
@@ -54,7 +52,7 @@ function RoomView() {
 
   return (
     <div>
-      <h2 className={styles.pageTitle}>Beiträge im Raum "{roomName || `Raum ${roomId}`}"</h2>
+      <h2 className={styles.pageTitle}>Beiträge im Raum "{`Raum ${roomId}`}"</h2>
 
       {/* "Neuen Post erstellen"-Bereich in einer eigenen Karte */}
       <div className={`${styles.newPostSection} card`}>
