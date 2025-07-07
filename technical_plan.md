@@ -517,3 +517,8 @@ ReelMatch-backend/
 ![Screenshot 8](image-examples/Screenshot%202025-06-26%20113451.png)
 ![Screenshot 9](image-examples/Screenshot%202025-06-26%20113503.png)
 ![Screenshot 10](image-examples/Screenshot%202025-06-26%20113552.png)
+
+
+
+![alt text](<image-examples/Screenshot 2025-07-07 121757 copy.png>) ![alt text](<image-examples/Screenshot 2025-07-07 121817 copy.png>) ![alt text](<image-examples/Screenshot 2025-07-07 121823.png>) ![alt text](<image-examples/Screenshot 2025-07-07 121904 copy.png>)
+
