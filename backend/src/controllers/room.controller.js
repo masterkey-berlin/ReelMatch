@@ -5,7 +5,7 @@ export const getAllRooms = async (req, res) => {
   try {
     const rooms = await RoomModel.findAllRooms();
     res.status(200).json(rooms);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Error fetching rooms.' });
   }
 };
@@ -15,7 +15,7 @@ export const getPostsInRoom = async (req, res) => {
   try {
     const posts = await PostModel.findPostsByRoomId(roomId);
     res.status(200).json(posts);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Error fetching posts for this room.' });
   }
 };
