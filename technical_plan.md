@@ -518,7 +518,10 @@ ReelMatch-backend/
 ![Screenshot 9](image-examples/Screenshot%202025-06-26%20113503.png)
 ![Screenshot 10](image-examples/Screenshot%202025-06-26%20113552.png)
 
+## Sprint 2 Backlog Screenshots
 
-
-![alt text](<image-examples/Screenshot 2025-07-07 121757 copy.png>) ![alt text](<image-examples/Screenshot 2025-07-07 121817 copy.png>) ![alt text](<image-examples/Screenshot 2025-07-07 121823.png>) ![alt text](<image-examples/Screenshot 2025-07-07 121904 copy.png>)
+![Sprint Backlog Overview](image-examples/Screenshot%202025-07-07%20121757%20copy.png)
+![Sprint Planning Details](image-examples/Screenshot%202025-07-07%20121817%20copy.png) 
+![Task Breakdown Structure](image-examples/Screenshot%202025-07-07%20121823.png) 
+![Progress Tracking View](image-examples/Screenshot%202025-07-07%20121904%20copy.png)
 
