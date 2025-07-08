@@ -43,12 +43,16 @@
 }
 
 .match-card {
-  background: white;
-  border-radius: 15px;
+  background: #ffffff; /* Weißer Hintergrund statt transparent */
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .match-card:hover {
@@ -57,16 +61,16 @@
 }
 
 .match-avatar {
-  width: 60px;
-  height: 60px;
+  background: #6366f1; /* Leuchtende Farbe für Avatar */
+  color: white;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  font-size: 20px;
   font-weight: bold;
-  font-size: 24px;
   margin: 0 auto 15px;
   border: 3px solid #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -75,6 +79,19 @@
 .match-info {
   text-align: center;
   margin-bottom: 20px;
+}
+
+.match-info h3 {
+  color: #333333; /* Dunkle Schrift für bessere Lesbarkeit */
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.match-info p {
+  color: #666666; /* Mittlere Graustufe */
+  font-size: 14px;
+  margin: 0 0 12px 0;
 }
 
 .match-username {
@@ -119,6 +136,21 @@
   background: #26de81;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(46, 213, 115, 0.3);
+}
+
+.chat-button {
+  background: #10b981; /* Grüner Chat-Button */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.chat-button:hover {
+  background: #059669;
 }
 
 .loading {
@@ -198,6 +230,33 @@
   color: #666;
   font-size: 16px;
   margin: 0;
+}
+
+.close-match-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-match-btn:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Verhindern der Überlagerung */
+.matches-list {
+  z-index: 1;
+  position: relative;
 }
 
 @media (max-width: 768px) {

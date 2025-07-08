@@ -2,28 +2,33 @@ import * as InterestModel from '../models/interest.model.js';
 import * as MatchModel from '../models/match.model.js';
 
 export const expressInterest = async (req, res) => {
-  const initiatorId = req.user.id; // Aus der (simulierten) Auth-Middleware
+  const initiatorId = req.user.id; // Aus der Auth-Middleware
   const { targetUserId } = req.body;
 
-  if (initiatorId === targetUserId) {
+  // Stellen Sie sicher, dass beide Werte Numbers sind
+  const targetId = Number(targetUserId);
+
+  console.log('DEBUG:', { initiatorId, targetUserId, targetId }); // Debug log
+
+  if (initiatorId === targetId) {
     return res.status(400).json({ message: "You cannot express interest in yourself." });
   }
 
   try {
     // Prüfen, ob schon Interesse besteht, um Duplikate zu vermeiden
-    const existingInterest = await InterestModel.findInterest(initiatorId, targetUserId);
+    const existingInterest = await InterestModel.findInterest(initiatorId, targetId);
     if (existingInterest) {
       return res.status(200).json({ message: "Interest already expressed." });
     }
 
     // Neues Interesse speichern
-    await InterestModel.createInterest(initiatorId, targetUserId);
+    await InterestModel.createInterest(initiatorId, targetId);
 
     // Prüfen, ob der andere Nutzer bereits Interesse bekundet hat (Match!)
-    const mutualInterest = await InterestModel.findInterest(targetUserId, initiatorId);
+    const mutualInterest = await InterestModel.findInterest(targetId, initiatorId);
     if (mutualInterest) {
       // Match erstellen!
-      const newMatch = await MatchModel.createMatch(initiatorId, targetUserId);
+      const newMatch = await MatchModel.createMatch(initiatorId, targetId);
       return res.status(201).json({ message: "It's a Match!", match: newMatch });
     }
 

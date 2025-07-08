@@ -3,7 +3,7 @@ export const protectedRoute = (req, res, next) => {
   console.log('🔐 TempAuth: Setting user for testing');
   
   req.user = { 
-    id: 2, // ZURÜCK AUF 2 für Frontend-Tests
+    id: 2, // ZURÜCK AUF USER 2
     username: 'testuser2',
     email: 'test2@reelmatch.com'
   };
