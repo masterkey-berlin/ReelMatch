@@ -1,13 +1,13 @@
 export const protectedRoute = (req, res, next) => {
   // Temp Auth für Sprint 2 Development
   console.log('🔐 TempAuth: Setting user for testing');
-  
-  req.user = { 
+
+  req.user = {
     id: 2, // ZURÜCK AUF USER 2
     username: 'testuser2',
     email: 'test2@reelmatch.com'
   };
-  
+
   console.log('✅ User authenticated:', req.user);
   next();
 };
@@ -16,11 +16,11 @@ export const protectedRoute = (req, res, next) => {
 export const verifyToken = (req, res, next) => {
   // TODO: Implement real JWT verification
   const token = req.headers.authorization?.split(' ')[1];
-  
+
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
-  
+
   // JWT verification logic hier...
   next();
 };

@@ -11,14 +11,14 @@ export const expressInterest = async (req, res) => {
   console.log('DEBUG:', { initiatorId, targetUserId, targetId }); // Debug log
 
   if (initiatorId === targetId) {
-    return res.status(400).json({ message: "You cannot express interest in yourself." });
+    return res.status(400).json({ message: 'You cannot express interest in yourself.' });
   }
 
   try {
     // Prüfen, ob schon Interesse besteht, um Duplikate zu vermeiden
     const existingInterest = await InterestModel.findInterest(initiatorId, targetId);
     if (existingInterest) {
-      return res.status(200).json({ message: "Interest already expressed." });
+      return res.status(200).json({ message: 'Interest already expressed.' });
     }
 
     // Neues Interesse speichern
@@ -29,13 +29,13 @@ export const expressInterest = async (req, res) => {
     if (mutualInterest) {
       // Match erstellen!
       const newMatch = await MatchModel.createMatch(initiatorId, targetId);
-      return res.status(201).json({ message: "It's a Match!", match: newMatch });
+      return res.status(201).json({ message: 'It\'s a Match!', match: newMatch });
     }
 
-    res.status(201).json({ message: "Interest expressed successfully." });
+    res.status(201).json({ message: 'Interest expressed successfully.' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error expressing interest." });
+    res.status(500).json({ message: 'Error expressing interest.' });
   }
 };
 
@@ -46,7 +46,7 @@ export const getMyMatches = async (req, res) => {
     res.status(200).json(matches);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error fetching matches." });
+    res.status(500).json({ message: 'Error fetching matches.' });
   }
 };
 
