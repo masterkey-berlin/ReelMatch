@@ -7,6 +7,8 @@ import authRoutes from './api/auth.routes.js';
 import userRoutes from './api/users.routes.js';
 import roomRoutes from './api/rooms.routes.js'; // Neue Zeile
 import matchRoutes from './api/matches/routes.js'; // ← Ist das da?
+import healthRoutes from './api/health.routes.js'; // Health-Route importieren
+import postsRoutes from './api/posts.routes.js'; // Posts-Route importieren
 
 const app = express();
 
@@ -31,5 +33,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/rooms', roomRoutes);
 app.use('/api/v1/matches', matchRoutes); // ← Ist das da?
+app.use('/api/health', healthRoutes); // Health-Route einbinden
+app.use('/api/posts', postsRoutes); // Posts-Route einbinden
 
 export default app;
