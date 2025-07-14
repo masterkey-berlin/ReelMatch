@@ -13,12 +13,12 @@ const SwipeInterface = ({ onMatch }) => {
     {
       id: 2,
       username: 'sarah_cool',
-      bio: 'Liebe Comedy und Action-Filme! 🎬',
+      bio: 'Liebe Comedy und Action-Filme! ',
       age: 25,
-      introVideo: '/uploads/introVideo-1751880567232-849988527.mp4',
+      introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
       recentPosts: [
         {
-          video: '/uploads/postVideo-1751874290281-583354624.mp4',
+          video: '/uploads/postVideo-1752439291512-790499454.mp4',
           room: 'Comedy-Klassiker',
           timestamp: '2 Stunden her'
         }
@@ -28,17 +28,17 @@ const SwipeInterface = ({ onMatch }) => {
     {
       id: 3,
       username: 'mike_movie',
-      bio: 'Sci-Fi Fan und Hobby-Regisseur 🚀',
+      bio: 'Sci-Fi Fan und Hobby-Regisseur ',
       age: 28,
-      introVideo: '/uploads/introVideo-1751880567232-849988527.mp4',
+      introVideo: '/uploads/introVideo-1752482317936-170159145.mp4',
       recentPosts: [
         {
-          video: '/uploads/postVideo-1751880063488-540593941.mp4',
+          video: '/uploads/postVideo-1752439580980-399548449.mp4',
           room: 'Sci-Fi Universum',
           timestamp: '1 Tag her'
         },
         {
-          video: '/uploads/postVideo-1751880083474-800708037.mp4',
+          video: '/uploads/postVideo-1752482072458-731791990.mp4',
           room: 'Filmproduktion',
           timestamp: '3 Tage her'
         }
@@ -48,12 +48,12 @@ const SwipeInterface = ({ onMatch }) => {
     {
       id: 4,
       username: 'anna_artist',
-      bio: 'Indie-Filme und Kunsthaus-Kino 🎭',
+      bio: 'Indie-Filme und Kunsthaus-Kino ',
       age: 24,
-      introVideo: '/uploads/introVideo-1751880567232-849988527.mp4',
+      introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
       recentPosts: [
         {
-          video: '/uploads/postVideo-1751880487296-237474298.mp4',
+          video: '/uploads/postVideo-1752482249594-799512553.mp4',
           room: 'Indie & Arthouse',
           timestamp: '5 Stunden her'
         }
@@ -104,7 +104,7 @@ const SwipeInterface = ({ onMatch }) => {
       <div className="video-profile-card">
         {/* Intro Video Section */}
         <div className="intro-video-section">
-          <h3>📹 Intro Video</h3>
+          <h3> Intro Video</h3>
           <div className="video-container">
             <video 
               key={currentUserData.introVideo}
@@ -150,7 +150,7 @@ const SwipeInterface = ({ onMatch }) => {
 
         {/* Recent Posts Section */}
         <div className="recent-posts-section">
-          <h3>🎬 Letzte Posts</h3>
+          <h3> Letzte Posts</h3>
           <div className="posts-grid">
             {currentUserData.recentPosts.map((post, index) => (
               <div key={index} className="post-item">
@@ -190,14 +190,14 @@ const SwipeInterface = ({ onMatch }) => {
             onClick={() => handleSwipe('left', currentUserData.id)}
             disabled={isProcessing}
           >
-            ❌ Nicht interessiert
+            Nicht interessiert
           </button>
           <button 
             className="swipe-btn like"
             onClick={() => handleSwipe('right', currentUserData.id)}
             disabled={isProcessing}
           >
-            ❤️ Interesse zeigen
+            Interesse zeigen
           </button>
         </div>
       </div>
