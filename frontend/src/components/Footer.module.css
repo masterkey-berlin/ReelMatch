@@ -4,10 +4,47 @@
   left: 0;
   width: 100%;
   padding: 20px 0;
-  text-align: center;
   color: var(--text-muted);
   font-size: 0.875rem; /* 14px */
   border-top: 1px solid var(--border-color);
-  background-color: var(--container-bg); /* Gib dem Footer dieselbe Farbe wie dem Header */
-  z-index: 50; /* Damit er über anderen Inhalten liegt */
+  background-color: var(--container-bg);
+  z-index: 50;
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.leftSection, .centerSection, .rightSection {
+  flex: 1;
+}
+
+.leftSection {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.centerSection {
+  text-align: center;
+}
+
+
+
+.footerNav {
+  display: flex;
+  gap: 20px;
+}
+
+.footerNav a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footerNav a:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
 }
