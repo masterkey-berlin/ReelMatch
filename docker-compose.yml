@@ -1,4 +1,3 @@
-
 services:
   postgres-db:
     image: postgres:15-alpine
@@ -11,6 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
 
   backend:
     build: ./backend # Sagt Docker Compose, dass es das Dockerfile im ./backend Ordner nutzen soll
@@ -22,6 +23,7 @@ services:
     environment:
       # Hier geben wir die DB-Verbindungsinfos an. Wichtig: Der Host ist jetzt der Service-Name 'postgres-db'
       - DB_HOST=postgres-db
+      - DB_PORT=5432
       - DB_USER=reelmatch_user
       - DB_PASSWORD=reelmatch_password
       - DB_NAME=reelmatch_dev

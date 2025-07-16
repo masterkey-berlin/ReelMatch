@@ -26,12 +26,16 @@ const VideoCard = ({
 
     setIsLiking(true);
     try {
+      console.log(`🎦 Attempting to like video ${video.id} from user ${videoOwner.id} in room ${roomName}`);
       const response = await likeVideo(videoOwner.id, video.id);
       setHasLiked(true);
       
       // Success feedback
       if (response.isMatch) {
+        console.log('🎉 MATCH in Themenraum!', response);
         setMatchModalData(response);
+      } else {
+        console.log('✅ Like erfolgreich in Themenraum:', response.message);
       }
       
       // Callback für Parent-Komponente
@@ -40,9 +44,13 @@ const VideoCard = ({
       }
       
     } catch (error) {
-      console.error('Error liking video:', error);
+      console.error('❌ Error liking video in Themenraum:', error);
       // Reset bei Fehler
       setIsLiking(false);
+      setHasLiked(false);
+      
+      // User-Feedback bei Fehler
+      alert(`Fehler beim Liken: ${error.message || 'Unbekannter Fehler'}`);
     }
   };
 

@@ -52,6 +52,8 @@
   border-bottom: 2px solid var(--primary-glow);
 }
 
+
+
 .mainContent {
   flex: 1; /* Wichtig: Dieser Bereich wächst, um den verfügbaren Platz zu füllen */
   max-width: 1200px;

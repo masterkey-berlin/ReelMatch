@@ -1,6 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
 class MatchService {
+
   async expressInterest(targetUserId, interestType = 'like') {
     try {
       console.log(`🎯 Expressing ${interestType} for user ${targetUserId}`);
@@ -8,19 +9,17 @@ class MatchService {
       const response = await fetch(`${API_BASE_URL}/matches/interest`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          // TODO: Add Authorization header when JWT is implemented
-          // 'Authorization': `Bearer ${getToken()}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          target_user_id: targetUserId,
+          targetUserId: targetUserId,
           interest_type: interestType
         })
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to express interest');
+        throw new Error(error.message || error.error || 'Failed to express interest');
       }
 
       const data = await response.json();
@@ -39,9 +38,7 @@ class MatchService {
       const response = await fetch(`${API_BASE_URL}/matches/`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-          // TODO: Add Authorization header when JWT is implemented
-          // 'Authorization': `Bearer ${getToken()}`
+          'Content-Type': 'application/json'
         }
       });
 
@@ -66,9 +63,7 @@ class MatchService {
       const response = await fetch(`${API_BASE_URL}/matches/like-video`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          // TODO: Add Authorization header when JWT is implemented
-          // 'Authorization': `Bearer ${getToken()}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           videoOwnerId: videoOwnerId,

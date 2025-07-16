@@ -3,62 +3,58 @@ import { useMatches } from '../hooks/useMatches';
 import './SwipeInterface.css';
 
 const SwipeInterface = ({ onMatch }) => {
-  const { expressInterest } = useMatches();
+  const { expressInterest, likeVideo } = useMatches();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showIntroThumbnail, setShowIntroThumbnail] = useState(true);
   const [showPostThumbnails, setShowPostThumbnails] = useState({});
+  const [likedPosts, setLikedPosts] = useState({});
 
   // Mock-Daten für Demo-Zwecke - Video-basierte Profile
   const [users] = useState([
     {
-      id: 2,
+      id: 3,
       username: 'sarah_cool',
       bio: 'Liebe Comedy und Action-Filme! ',
       age: 25,
       introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
       recentPosts: [
         {
-          video: '/uploads/postVideo-1752439291512-790499454.mp4',
+          video: '/uploads/postVideo-1752439602224-521957059.mp4',
           room: 'Comedy-Klassiker',
           timestamp: '2 Stunden her'
         }
       ],
-      interests: ['Comedy', 'Action', 'Reisen']
-    },
-    {
-      id: 3,
-      username: 'mike_movie',
-      bio: 'Sci-Fi Fan und Hobby-Regisseur ',
-      age: 28,
-      introVideo: '/uploads/introVideo-1752482317936-170159145.mp4',
-      recentPosts: [
-        {
-          video: '/uploads/postVideo-1752439580980-399548449.mp4',
-          room: 'Sci-Fi Universum',
-          timestamp: '1 Tag her'
-        },
-        {
-          video: '/uploads/postVideo-1752482072458-731791990.mp4',
-          room: 'Filmproduktion',
-          timestamp: '3 Tage her'
-        }
-      ],
-      interests: ['Sci-Fi', 'Filmproduktion', 'Gaming']
+      interests: ['Filme', 'Comedy', 'Action', 'Reisen']
     },
     {
       id: 4,
-      username: 'anna_artist',
-      bio: 'Indie-Filme und Kunsthaus-Kino ',
-      age: 24,
+      username: 'mike_filmmaker',
+      bio: 'Regisseur und Filmliebhaber',
+      age: 28,
       introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
       recentPosts: [
         {
-          video: '/uploads/postVideo-1752482249594-799512553.mp4',
-          room: 'Indie & Arthouse',
-          timestamp: '5 Stunden her'
+          video: '/uploads/postVideo-1752439602224-521957059.mp4',
+          room: 'Indie-Filme',
+          timestamp: '1 Tag her'
         }
       ],
-      interests: ['Indie-Filme', 'Kunst', 'Fotografie']
+      interests: ['Filmen', 'Regie', 'Kunst', 'Musik']
+    },
+    {
+      id: 5,
+      username: 'anna_adventure',
+      bio: 'Abenteuer und Dokumentarfilme sind mein Ding!',
+      age: 26,
+      introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
+      recentPosts: [
+        {
+          video: '/uploads/postVideo-1752439602224-521957059.mp4',
+          room: 'Dokumentarfilme',
+          timestamp: '3 Stunden her'
+        }
+      ],
+      interests: ['Reisen', 'Dokumentationen', 'Natur', 'Sport']
     }
   ]);
 
@@ -84,6 +80,22 @@ const SwipeInterface = ({ onMatch }) => {
     // Zum nächsten User wechseln
     setCurrentIndex(prev => (prev + 1) % users.length);
     setIsProcessing(false);
+  };
+
+  const handleVideoLike = async (videoOwnerId, videoId, postIndex) => {
+    try {
+      setLikedPosts(prev => ({ ...prev, [postIndex]: true }));
+      const response = await likeVideo(videoOwnerId, videoId);
+      
+      if (response.isMatch && onMatch) {
+        onMatch(response);
+      }
+      
+      console.log('Video liked:', response.message);
+    } catch (error) {
+      console.error('Fehler beim Liken des Videos:', error);
+      setLikedPosts(prev => ({ ...prev, [postIndex]: false }));
+    }
   };
 
   const currentUserData = users[currentIndex];
@@ -177,6 +189,13 @@ const SwipeInterface = ({ onMatch }) => {
                 <div className="post-info">
                   <span className="room-name">{post.room}</span>
                   <span className="timestamp">{post.timestamp}</span>
+                  <button 
+                    className={`like-post-btn ${likedPosts[index] ? 'liked' : ''}`}
+                    onClick={() => handleVideoLike(currentUserData.id, `post_${index}`, index)}
+                    disabled={likedPosts[index]}
+                  >
+                    {likedPosts[index] ? '❤️ Geliked' : '🤍 Like'}
+                  </button>
                 </div>
               </div>
             ))}
