@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import apiClient from '../services/api';
 import './MatchList.css';
 
 const MatchList = () => {
@@ -6,19 +7,20 @@ const MatchList = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Hook-Problem umgehen - direkt Testdaten setzen
-    setTimeout(() => {
-      console.log('🧪 Setting test matches...');
-      setMatches([{
-        match_id: 1,
-        partner_id: 1,
-        partner_username: "Masterkey",
-        partner_video_path: "uploads/introVideo-1751880567232-849988527.mp4",
-        created_at: new Date().toISOString()
-      }]);
-      setLoading(false);
-      console.log('✅ Test matches set successfully');
-    }, 1000);
+    const fetchMatches = async () => {
+      try {
+        console.log('📋 Fetching matches...');
+        const response = await apiClient.get('/matches');
+        setMatches(response.data);
+        console.log('✅ Matches loaded:', response.data);
+      } catch (error) {
+        console.error('❌ Error loading matches:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchMatches();
   }, []);
 
   // Funktion zum Schließen eines Match-Cards

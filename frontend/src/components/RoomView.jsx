@@ -16,7 +16,11 @@ function RoomView() {
   console.log('RoomView - Current user:', user);
   console.log('RoomView - User ID:', user?.user_id);
   
-  const currentUserId = user && user.user_id ? user.user_id : 2; // Fallback auf user_id: 2 für temp auth
+  // Wir verwenden nur die tatsächliche Benutzer-ID ohne Fallback
+  const currentUserId = user?.user_id;
+  
+  // Debug: Zeige die verwendete Benutzer-ID
+  console.log('RoomView - Using user ID for posts:', currentUserId);
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -71,7 +75,7 @@ function RoomView() {
       {/* "Neuen Post erstellen"-Bereich in einer eigenen Karte */}
       <div className={`${styles.newPostSection} card`}>
         <h3>Neuen Post erstellen</h3>
-        <PostUpload roomId={roomId} userId={currentUserId} onUploadSuccess={fetchPosts} />
+        <PostUpload roomId={roomId} onUploadSuccess={fetchPosts} />
       </div>
 
       <h3>Bestehende Posts</h3>

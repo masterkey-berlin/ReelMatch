@@ -23,39 +23,37 @@ const Layout = () => {
     <div className={styles.appRoot}>
       <header className={`${styles.header} ${isScrolled ? styles.scrolled : ''}`}>
         <div className={styles.headerContent}>
-          <div className={styles.logoContainer}>
-            <Link to="/">
-              <img src={logo} alt="ReelMatch Logo" className={styles.logo} />
-            </Link>
-          </div>
+          <Link to="/">
+            <img src={logo} alt="ReelMatch Logo" className={styles.logo} />
+          </Link>
           <nav className={styles.nav}>
             <NavLink to="/rooms" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
               Themenräume
             </NavLink>
-            {user ? (
-              <div className={styles.authLinks}>
+            {user && user.user_id ? (
+              <>
                 <NavLink to="/swipe" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
-                  💖 Swipen
+                  💕 Swipen
                 </NavLink>
                 <NavLink to="/matches" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   🔥 Matches
                 </NavLink>
-                <NavLink to="/profile" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+                <NavLink to={`/profile/${user.user_id}`} className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   Mein Profil
                 </NavLink>
                 <button onClick={logout} className={styles.navLink} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                   Logout
                 </button>
-              </div>
+              </>
             ) : (
-              <div className={styles.authLinks}>
+              <>
                 <NavLink to="/register" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   Registrieren
                 </NavLink>
                 <NavLink to="/login" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   Login
                 </NavLink>
-              </div>
+              </>
             )}
           </nav>
         </div>

@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout'; 
-import LandingPage from './components/LandingPage'; // NEU: Importieren
-import Register from './components/Register';
+import LandingPage from './components/LandingPage';
 import Profile from './components/Profile';
 import RoomList from './components/RoomList';
 import RoomView from './components/RoomView';
-import Login from './components/Login';
-import ProtectedRoute from './components/ProtectedRoute';
 import SwipeInterface from './components/SwipeInterface';
 import MatchList from './components/MatchList';
 import MatchModal from './components/MatchModal';
+import LoginForm from './components/auth/LoginForm';
+import RegisterForm from './components/auth/RegisterForm';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Platzhalter-Seiten für den Footer
 const Impressum = () => (
@@ -88,51 +89,40 @@ function App() {
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* Die LandingPage ist jetzt die Startseite */}
-          <Route index element={<LandingPage />} /> 
-          <Route path="register" element={<Register />} />
-          <Route path="profile/:userId" element={<Profile />} />
-          <Route path="rooms" element={
-  <ProtectedRoute>
-    <RoomList />
-  </ProtectedRoute>
-} />
-<Route path="rooms/:roomId" element={
-  <ProtectedRoute>
-    <RoomView />
-  </ProtectedRoute>
-} />
-          <Route path="login" element={<Login />} />
-          {/* Neue Match-System Routen */}
-          <Route path="swipe" element={
-            <ProtectedRoute>
-              <SwipeInterface onMatch={handleMatch} />
-            </ProtectedRoute>
-          } />
-          <Route path="matches" element={
-            <ProtectedRoute>
-              <MatchList />
-            </ProtectedRoute>
-          } />
-          {/* Routen für die Footer-Links */}
-          <Route path="impressum" element={<Impressum />} />
-          <Route path="datenschutz" element={<Datenschutz />} />
-          <Route path="agb" element={<Agb />} />
-          <Route path="kontakt" element={<Kontakt />} />
-          <Route path="*" element={<div><h2>404 - Seite nicht gefunden</h2></div>} />
-        </Route>
-      </Routes>
-      
-      {/* Match Modal - global verfügbar */}
-      <MatchModal 
-        match={matchModalData} 
-        isOpen={!!matchModalData} 
-        onClose={closeMatchModal} 
-      />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            {/* Öffentliche Routen */}
+            <Route index element={<LandingPage />} />
+            <Route path="login" element={<LoginForm />} />
+            <Route path="register" element={<RegisterForm />} />
+            <Route path="impressum" element={<Impressum />} />
+            <Route path="datenschutz" element={<Datenschutz />} />
+            <Route path="agb" element={<Agb />} />
+            <Route path="kontakt" element={<Kontakt />} />
+
+            {/* Geschützte Routen */}
+            <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="profile/:userId" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="rooms" element={<ProtectedRoute><RoomList /></ProtectedRoute>} />
+            <Route path="rooms/:roomId" element={<ProtectedRoute><RoomView /></ProtectedRoute>} />
+            <Route path="swipe" element={<ProtectedRoute><SwipeInterface onMatch={handleMatch} /></ProtectedRoute>} />
+            <Route path="matches" element={<ProtectedRoute><MatchList /></ProtectedRoute>} />
+            <Route path="*" element={<div><h2>404 - Seite nicht gefunden</h2></div>} />
+          </Route>
+        </Routes>
+
+        {/* Match Modal - global verfügbar */}
+        {matchModalData && (
+          <MatchModal 
+            match={matchModalData} 
+            isOpen={!!matchModalData} 
+            onClose={closeMatchModal} 
+          />
+        )}
+      </Router>
+    </AuthProvider>
   );
 }
 
