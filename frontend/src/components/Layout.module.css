@@ -7,17 +7,13 @@
 }
 
 .header {
-  background-color: transparent;
+  background-color: var(--container-bg);
+  border-bottom: 1px solid var(--border-color);
   position: fixed;
   top: 0;
   z-index: 50;
   width: 100%;
   transition: background-color 0.3s ease;
-}
-
-.header.scrolled {
-  background-color: var(--container-bg);
-  border-bottom: 1px solid var(--border-color);
 }
 
 .headerContent {
