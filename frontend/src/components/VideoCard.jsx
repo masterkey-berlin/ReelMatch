@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMatches } from '../hooks/useMatches';
 import MatchModal from './MatchModal';
 import './VideoCard.css';
+import { useAuth } from '../context/AuthContext';
 
 const VideoCard = ({ 
   video, 
@@ -11,6 +12,7 @@ const VideoCard = ({
   onVideoLike 
 }) => {
   const { likeVideo } = useMatches();
+  const { user } = useAuth(); // <--- Aktuellen User holen
   const [isLiking, setIsLiking] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
   const [matchModalData, setMatchModalData] = useState(null);
@@ -50,6 +52,9 @@ const VideoCard = ({
     setMatchModalData(null);
   };
 
+  // Prüfen, ob das Video dem angemeldeten User gehört
+  const isOwnVideo = user && videoOwner && user.id === videoOwner.id;
+
   return (
     <>
       <div className="video-card">
@@ -65,7 +70,6 @@ const VideoCard = ({
             <source src={`http://localhost:3001/${(video.path || video.video_path || '').replace(/\\/g, '/')}`} type="video/mp4" />
             Dein Browser unterstützt keine Videos.
           </video>
-          
           {showThumbnail && (
             <div className="video-thumbnail-overlay">
               <div className="play-button">
@@ -77,21 +81,7 @@ const VideoCard = ({
               </div>
             </div>
           )}
-          
-          {showLikeButton && (
-            <div className="video-actions">
-              <button 
-                className={`like-btn ${hasLiked ? 'liked' : ''}`}
-                onClick={handleLikeVideo}
-                disabled={isLiking || hasLiked}
-                title={hasLiked ? 'Video geliked! Interesse gezeigt.' : 'Video liken und Interesse zeigen'}
-              >
-                {isLiking ? '⏳' : hasLiked ? '💖' : '❤️'}
-              </button>
-            </div>
-          )}
         </div>
-        
         <div className="video-info">
           <div className="video-owner">
             <div className="owner-avatar">
@@ -117,8 +107,32 @@ const VideoCard = ({
               </span>
             )}
           </div>
+          {/* Like-Button unten rechts im weißen Feld, nur bei fremden Videos */}
+          {!isOwnVideo && showLikeButton && (
+            <div className="like-btn-row">
+              <button 
+                className={`like-btn-circle ${hasLiked ? 'liked' : ''}`}
+                onClick={handleLikeVideo}
+                disabled={isLiking || hasLiked}
+                title={hasLiked ? 'Video geliked! Interesse gezeigt.' : 'Video liken und Interesse zeigen'}
+              >
+                {isLiking ? '⏳' : '❤️'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
+      {/* Löschen-Button unterhalb der Card, nur für eigene Videos */}
+      {isOwnVideo && (
+        <div className="delete-btn-row">
+          <button 
+            className="delete-btn-rect"
+            onClick={() => {/* Delete-Handler hier einfügen */}}
+          >
+            Löschen
+          </button>
+        </div>
+      )}
 
       {/* Match Modal */}
       <MatchModal 
