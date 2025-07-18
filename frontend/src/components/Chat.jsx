@@ -44,12 +44,19 @@ const Chat = () => {
     try {
       setLoading(true);
       const data = await chatService.getConversation(partnerId);
-      setMessages(data.messages);
+      setMessages(Array.isArray(data.messages) ? data.messages : []);
       setPartner(data.partner);
       setError(null);
     } catch (err) {
-      console.error('Fehler beim Laden der Konversation:', err);
-      setError('Konversation konnte nicht geladen werden.');
+      // Nur bei echten Fehlern anzeigen, nicht bei leeren Nachrichten
+      if (err?.response && (err.response.status === 403 || err.response.status === 404)) {
+        setError('Konversation konnte nicht geladen werden.');
+      } else {
+        // Bei leeren Nachrichten trotzdem Chat anzeigen
+        setMessages([]);
+        setPartner({ id: partnerId, username: 'Unbekannt' });
+        setError(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -117,10 +124,39 @@ const Chat = () => {
   }
   
   if (!partner) {
+    // Zeige trotzdem das Chat-Fenster, wenn keine Nachrichten existieren
     return (
-      <div className="chat-container error">
-        <p>Chat-Partner nicht gefunden.</p>
-        <button onClick={handleBackToList}>Zurück zur Chat-Liste</button>
+      <div className="chat-container">
+        <div className="chat-header">
+          <button className="back-button" onClick={handleBackToList}>
+            &larr;
+          </button>
+          <div className="chat-partner-info">
+            <div className="chat-avatar">
+              {'U'}
+            </div>
+            <h2>Unbekannt</h2>
+          </div>
+        </div>
+        <div className="messages-container empty">
+          <p>Du hast noch keine Nachrichten ausgetauscht.</p>
+        </div>
+        <form className="message-form" onSubmit={handleSendMessage}>
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Nachricht schreiben..."
+            className="message-input"
+          />
+          <button 
+            type="submit" 
+            className="send-button"
+            disabled={!newMessage.trim()}
+          >
+            Senden
+          </button>
+        </form>
       </div>
     );
   }
@@ -134,11 +170,9 @@ const Chat = () => {
           &larr;
         </button>
         <div className="chat-partner-info">
-          <img 
-            src={partner.avatar || '/default-avatar.png'} 
-            alt={partner.username} 
-            className="chat-avatar" 
-          />
+          <div className="chat-avatar">
+            {partner.username.charAt(0).toUpperCase()}
+          </div>
           <h2>{partner.username}</h2>
         </div>
       </div>

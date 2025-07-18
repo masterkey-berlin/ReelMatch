@@ -43,27 +43,24 @@ const MessageModel = {
     try {
       // Prüfen, ob ein Match zwischen den Benutzern besteht
       const match = await MatchModel.getMatchBetweenUsers(userId, partnerId);
-
       if (!match) {
         throw new Error('Kein Match zwischen diesen Benutzern');
       }
-
       // Nachrichten für dieses Match abrufen
       const messagesResult = await db.query(
         'SELECT * FROM messages WHERE match_id = $1 ORDER BY sent_at ASC',
         [match.match_id]
       );
-
       // Partner-Informationen abrufen
       const partner = await UserModel.findUserById(partnerId);
-
-      // Wir fügen eine virtuelle read-Eigenschaft hinzu, da die Tabelle keine hat
-      const messages = messagesResult.rows.map(msg => ({
-        ...msg,
-        read: true, // Wir setzen alle als gelesen, da wir keine read-Spalte haben
-        receiver_id: msg.sender_id === userId ? partnerId : userId // Virtuelle receiver_id
-      }));
-
+      // Wenn keine Nachrichten existieren, trotzdem zurückgeben
+      const messages = (messagesResult.rows.length === 0)
+        ? []
+        : messagesResult.rows.map(msg => ({
+            ...msg,
+            read: true,
+            receiver_id: msg.sender_id === userId ? partnerId : userId
+          }));
       return {
         messages,
         partner
@@ -128,8 +125,20 @@ const MessageModel = {
           [match.match_id]
         );
 
-        // Wenn es keine Nachrichten gibt, überspringen wir diesen Partner
-        if (lastMessageResult.rows.length === 0) continue;
+        // Wenn es keine Nachrichten gibt, trotzdem Partner anzeigen (Dummy-Eintrag)
+        if (lastMessageResult.rows.length === 0) {
+          chatPartners.push({
+            id: partner.id,
+            username: partner.username,
+            avatar: partner.avatar,
+            last_message: '',
+            last_message_time: null,
+            is_last_message_from_me: false,
+            unread_count: 0,
+            is_new_match: true
+          });
+          continue;
+        }
 
         const lastMessage = lastMessageResult.rows[0];
 

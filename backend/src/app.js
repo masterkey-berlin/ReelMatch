@@ -9,7 +9,7 @@ import roomRoutes from './api/rooms.routes.js'; // Neue Zeile
 import matchRoutes from './api/matches/routes.js'; // ← Ist das da?
 import healthRoutes from './api/health.routes.js'; // Health-Route importieren
 import postsRoutes from './api/posts.routes.js'; // Posts-Route importieren
-import messageRoutes from './routes/message.routes.js'; // Chat-Nachrichten-Route importieren
+import messageRoutes from './api/messages.routes.js'; // Chat-Nachrichten-Route importieren
 
 // Auth-Middleware importieren
 import { protectedRoute } from './middleware/auth.middleware.js';

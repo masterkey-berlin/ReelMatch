@@ -5,7 +5,7 @@ const API_URL = window.env?.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
 
 // Hilfsfunktion, um den Auth-Header zu erstellen
 const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('reelmatch_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

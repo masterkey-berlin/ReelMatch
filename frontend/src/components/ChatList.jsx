@@ -32,24 +32,21 @@ const ChatList = () => {
   };
 
   const formatLastMessageTime = (timestamp) => {
+    if (!timestamp) return 'Neues Match';
     const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return 'Neues Match';
     const now = new Date();
     const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    
     if (diffDays === 0) {
-      // Heute
       return date.toLocaleTimeString('de-DE', {
         hour: '2-digit',
         minute: '2-digit'
       });
     } else if (diffDays === 1) {
-      // Gestern
       return 'Gestern';
     } else if (diffDays < 7) {
-      // Wochentag
       return date.toLocaleDateString('de-DE', { weekday: 'long' });
     } else {
-      // Datum
       return date.toLocaleDateString('de-DE', {
         day: '2-digit',
         month: '2-digit',
@@ -84,36 +81,42 @@ const ChatList = () => {
     <div className="chat-list-container">
       <h2 className="chat-list-title">Deine Chats</h2>
       <div className="chat-list">
-        {chatPartners.map(partner => (
-          <div 
-            key={partner.id} 
-            className="chat-list-item"
-            onClick={() => handleChatSelect(partner.id)}
-          >
-            <div className="chat-avatar-container">
-              <img 
-                src={partner.avatar || '/default-avatar.png'} 
-                alt={partner.username} 
-                className="chat-list-avatar" 
-              />
-              {partner.unread_count > 0 && (
-                <span className="unread-badge">{partner.unread_count}</span>
-              )}
-            </div>
-            <div className="chat-list-content">
-              <div className="chat-list-header">
-                <h3 className="chat-list-name">{partner.username}</h3>
-                <span className="chat-list-time">
-                  {formatLastMessageTime(partner.last_message_time)}
-                </span>
+        {chatPartners.map(partner => {
+          const displayName = partner.username || 'Unbekannt';
+          return (
+            <div 
+              key={partner.id} 
+              className={`chat-list-item${partner.is_new_match ? ' new-match' : ''}`}
+            >
+              <div className="chat-avatar-container">
+                <div className="chat-list-avatar">
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
               </div>
-              <div className="chat-list-message">
-                {partner.is_last_message_from_me && <span className="sent-indicator">Du: </span>}
-                {partner.last_message}
+              <div className="chat-list-content">
+                <div className="chat-list-header">
+                  <h3 className="chat-list-name">{displayName}</h3>
+                  <span className="chat-list-time">
+                    {partner.last_message_time ? formatLastMessageTime(partner.last_message_time) : 'Neues Match'}
+                  </span>
+                </div>
+                <div className="chat-list-message">
+                  {partner.is_new_match ? (
+                    <button
+                      className="start-chat-btn"
+                      onClick={() => handleChatSelect(partner.id)}
+                    >Chat beginnen</button>
+                  ) : (
+                    <>
+                      {partner.is_last_message_from_me && <span className="sent-indicator">Du: </span>}
+                      {partner.last_message}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
