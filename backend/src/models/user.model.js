@@ -71,3 +71,16 @@ export const updateUser = async (userId, userData) => {
   const result = await pool.query(query, [userId, ...values]);
   return result.rows[0];
 };
+
+// Default export für Kompatibilität mit bestehenden Imports
+const UserModel = {
+  findUserByUsername,
+  findUserByEmail,
+  createUser,
+  updateUserVideoPath,
+  findUserById,
+  updateUser,
+  getUserById: findUserById // Alias für Kompatibilität
+};
+
+export default UserModel;

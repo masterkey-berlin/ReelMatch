@@ -40,6 +40,9 @@ const Layout = () => {
                 <NavLink to="/matches" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   🔥 Matches
                 </NavLink>
+                <NavLink to="/chats" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
+                  💬 Chats
+                </NavLink>
                 <NavLink to="/profile" className={({ isActive }) => isActive ? `${styles.navLink} ${styles.activeLink}` : styles.navLink}>
                   Mein Profil
                 </NavLink>

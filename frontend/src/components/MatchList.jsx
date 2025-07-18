@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/api';
 import './MatchList.css';
 
 const MatchList = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -75,7 +77,10 @@ const MatchList = () => {
               <div className="match-info">
                 <h3>{match.partner_username || 'Unbekannt'}</h3>
                 <p>Match seit {new Date(match.created_at || Date.now()).toLocaleDateString('de-DE')}</p>
-                <button className="chat-button">
+                <button 
+                  className="chat-button"
+                  onClick={() => navigate(`/chat/${match.partner_id}`)}
+                >
                   <span role="img" aria-label="chat">💬</span> Chat starten
                 </button>
               </div>

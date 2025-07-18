@@ -13,6 +13,8 @@ import MatchModal from './components/MatchModal';
 import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import ChatsPage from './pages/ChatsPage';
+import ChatPage from './pages/ChatPage';
 
 // Platzhalter-Seiten für den Footer
 const Impressum = () => (
@@ -109,6 +111,8 @@ function App() {
             <Route path="rooms/:roomId" element={<ProtectedRoute><RoomView /></ProtectedRoute>} />
             <Route path="swipe" element={<ProtectedRoute><SwipeInterface onMatch={handleMatch} /></ProtectedRoute>} />
             <Route path="matches" element={<ProtectedRoute><MatchList /></ProtectedRoute>} />
+            <Route path="chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
+            <Route path="chat/:partnerId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="*" element={<div><h2>404 - Seite nicht gefunden</h2></div>} />
           </Route>
         </Routes>

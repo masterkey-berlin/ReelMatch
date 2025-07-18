@@ -1,0 +1,156 @@
+import db from '../config/db.js';
+import * as UserModel from './user.model.js';
+import * as MatchModel from './match.model.js';
+
+const MessageModel = {
+  /**
+   * Erstellt eine neue Nachricht
+   * @param {number} senderId - ID des Absenders
+   * @param {number} receiverId - ID des Empfängers
+   * @param {string} content - Inhalt der Nachricht
+   * @returns {Promise<Object>} Die erstellte Nachricht
+   */
+  async createMessage(senderId, receiverId, content) {
+    try {
+      // Prüfen, ob ein Match zwischen den Benutzern besteht
+      const match = await MatchModel.getMatchBetweenUsers(senderId, receiverId);
+
+      if (!match) {
+        throw new Error('Kein Match zwischen diesen Benutzern');
+      }
+
+      const result = await db.query(
+        `INSERT INTO messages (match_id, sender_id, content) 
+         VALUES ($1, $2, $3) 
+         RETURNING *`,
+        [match.match_id, senderId, content]
+      );
+
+      return result.rows[0];
+    } catch (error) {
+      console.error('Fehler beim Erstellen der Nachricht:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Ruft die Konversation zwischen zwei Benutzern ab
+   * @param {number} userId - ID des aktuellen Benutzers
+   * @param {number} partnerId - ID des Chat-Partners
+   * @returns {Promise<Object>} Die Konversation mit Nachrichten und Partner-Informationen
+   */
+  async getConversation(userId, partnerId) {
+    try {
+      // Prüfen, ob ein Match zwischen den Benutzern besteht
+      const match = await MatchModel.getMatchBetweenUsers(userId, partnerId);
+
+      if (!match) {
+        throw new Error('Kein Match zwischen diesen Benutzern');
+      }
+
+      // Nachrichten für dieses Match abrufen
+      const messagesResult = await db.query(
+        'SELECT * FROM messages WHERE match_id = $1 ORDER BY sent_at ASC',
+        [match.match_id]
+      );
+
+      // Partner-Informationen abrufen
+      const partner = await UserModel.findUserById(partnerId);
+
+      // Wir fügen eine virtuelle read-Eigenschaft hinzu, da die Tabelle keine hat
+      const messages = messagesResult.rows.map(msg => ({
+        ...msg,
+        read: true, // Wir setzen alle als gelesen, da wir keine read-Spalte haben
+        receiver_id: msg.sender_id === userId ? partnerId : userId // Virtuelle receiver_id
+      }));
+
+      return {
+        messages,
+        partner
+      };
+    } catch (error) {
+      console.error('Fehler beim Abrufen der Konversation:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Markiert Nachrichten als gelesen (Dummy-Funktion, da keine read-Spalte vorhanden ist)
+   * @param {number} _senderId - ID des Absenders (ungenutzt)
+   * @param {number} _receiverId - ID des Empfängers (ungenutzt)
+   * @returns {Promise<Object>} Information über die aktualisierten Nachrichten
+   */
+  async markMessagesAsRead(_senderId, _receiverId) {
+    // Da wir keine read-Spalte haben, geben wir einfach ein Dummy-Ergebnis zurück
+    return {
+      updatedCount: 0,
+      updatedMessages: []
+    };
+  },
+
+  /**
+   * Ruft die Anzahl der ungelesenen Nachrichten von einem bestimmten Absender ab
+   * (Dummy-Funktion, da keine read-Spalte vorhanden ist)
+   * @param {number} _senderId - ID des Absenders (ungenutzt)
+   * @param {number} _receiverId - ID des Empfängers (ungenutzt)
+   * @returns {Promise<number>} Anzahl der ungelesenen Nachrichten
+   */
+  async getUnreadCount(_senderId, _receiverId) {
+    return 0;
+  },
+
+  /**
+   * Ruft die Liste der Chat-Partner mit letzter Nachricht ab
+   * @param {number} userId - ID des aktuellen Benutzers
+   * @returns {Promise<Array>} Liste der Chat-Partner
+   */
+  async getChatPartners(userId) {
+    try {
+      // Zuerst holen wir alle Matches des Benutzers
+      const matchesResult = await db.query(
+        'SELECT * FROM matches WHERE user1_id = $1 OR user2_id = $1',
+        [userId]
+      );
+
+      const chatPartners = [];
+
+      // Für jedes Match holen wir die letzte Nachricht und den Partner
+      for (const match of matchesResult.rows) {
+        const partnerId = match.user1_id === userId ? match.user2_id : match.user1_id;
+
+        // Partner-Informationen abrufen
+        const partner = await UserModel.findUserById(partnerId);
+        if (!partner) continue;
+
+        // Letzte Nachricht für dieses Match abrufen
+        const lastMessageResult = await db.query(
+          'SELECT * FROM messages WHERE match_id = $1 ORDER BY sent_at DESC LIMIT 1',
+          [match.match_id]
+        );
+
+        // Wenn es keine Nachrichten gibt, überspringen wir diesen Partner
+        if (lastMessageResult.rows.length === 0) continue;
+
+        const lastMessage = lastMessageResult.rows[0];
+
+        chatPartners.push({
+          id: partner.id,
+          username: partner.username,
+          avatar: partner.avatar,
+          last_message: lastMessage.content,
+          last_message_time: lastMessage.sent_at,
+          is_last_message_from_me: lastMessage.sender_id === userId,
+          unread_count: 0 // Da wir keine read-Spalte haben, setzen wir immer 0
+        });
+      }
+
+      // Nach Zeitpunkt der letzten Nachricht sortieren
+      return chatPartners.sort((a, b) => new Date(b.last_message_time) - new Date(a.last_message_time));
+    } catch (error) {
+      console.error('Fehler beim Abrufen der Chat-Partner:', error);
+      throw error;
+    }
+  }
+};
+
+export default MessageModel;

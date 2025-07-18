@@ -52,6 +52,9 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { username, password } = req.body;
 
+  // Debug-Log: Request-Body ausgeben
+  console.log('LOGIN-REQUEST:', { username, password });
+
   if (!username || !password) {
     return res.status(400).json({ message: 'Username and password are required' });
   }
@@ -59,12 +62,14 @@ export const login = async (req, res) => {
   try {
     const user = await UserModel.findUserByUsername(username);
     if (!user) {
+      console.log('LOGIN-FAIL: User not found');
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Passwort überprüfen
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log('LOGIN-FAIL: Invalid password');
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -73,11 +78,14 @@ export const login = async (req, res) => {
 
     // Passwort aus Response entfernen
     const { password: _, ...userWithoutPassword } = user;
-    res.json({
+    const responseObj = {
       message: 'Login successful',
       token,
       user: userWithoutPassword
-    });
+    };
+    // Debug-Log: Response-Objekt ausgeben
+    console.log('LOGIN-SUCCESS:', responseObj);
+    res.json(responseObj);
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Error during login' });

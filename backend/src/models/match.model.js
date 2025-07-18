@@ -22,3 +22,41 @@ export const findMatchesByUserId = async (userId) => {
   );
   return result.rows;
 };
+
+/**
+ * Prüft, ob ein Match zwischen zwei Benutzern besteht
+ * @param {number} userId - ID des ersten Benutzers
+ * @param {number} partnerId - ID des zweiten Benutzers
+ * @returns {Promise<boolean>} true, wenn ein Match besteht, sonst false
+ */
+export const checkMatchExists = async (userId, partnerId) => {
+  const result = await pool.query(
+    'SELECT * FROM matches WHERE (user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1)',
+    [userId, partnerId]
+  );
+  return result.rows.length > 0;
+};
+
+/**
+ * Holt ein Match zwischen zwei Benutzern
+ * @param {number} userId - ID des ersten Benutzers
+ * @param {number} partnerId - ID des zweiten Benutzers
+ * @returns {Promise<Object|null>} Das Match-Objekt oder null, wenn kein Match besteht
+ */
+export const getMatchBetweenUsers = async (userId, partnerId) => {
+  const result = await pool.query(
+    'SELECT * FROM matches WHERE (user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1)',
+    [userId, partnerId]
+  );
+  return result.rows.length > 0 ? result.rows[0] : null;
+};
+
+// Default export für Kompatibilität mit bestehenden Imports
+const MatchModel = {
+  createMatch,
+  findMatchesByUserId,
+  checkMatchExists,
+  getMatchBetweenUsers
+};
+
+export default MatchModel;

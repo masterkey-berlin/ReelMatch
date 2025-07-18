@@ -9,9 +9,10 @@ import roomRoutes from './api/rooms.routes.js'; // Neue Zeile
 import matchRoutes from './api/matches/routes.js'; // ← Ist das da?
 import healthRoutes from './api/health.routes.js'; // Health-Route importieren
 import postsRoutes from './api/posts.routes.js'; // Posts-Route importieren
+import messageRoutes from './routes/message.routes.js'; // Chat-Nachrichten-Route importieren
 
 // Auth-Middleware importieren
-import { tempAuthForDev } from './middleware/auth.middleware.js';
+import { protectedRoute } from './middleware/auth.middleware.js';
 
 const app = express();
 
@@ -34,12 +35,12 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/auth', authRoutes);
 
-// Alle anderen API-Routen mit tempAuthForDev-Middleware schützen
-// Dies stellt sicher, dass der korrekte Benutzer aus dem X-User-Id Header verwendet wird
-app.use('/api/v1/users', tempAuthForDev, userRoutes);
-app.use('/api/v1/rooms', tempAuthForDev, roomRoutes);
-app.use('/api/v1/matches', tempAuthForDev, matchRoutes);
+// Alle anderen API-Routen mit protectedRoute-Middleware schützen
+app.use('/api/v1/users', protectedRoute, userRoutes);
+app.use('/api/v1/rooms', protectedRoute, roomRoutes);
+app.use('/api/v1/matches', protectedRoute, matchRoutes);
 app.use('/api/health', healthRoutes); // Health-Route ohne Auth
-app.use('/api/posts', tempAuthForDev, postsRoutes);
+app.use('/api/posts', protectedRoute, postsRoutes);
+app.use('/api/v1/messages', protectedRoute, messageRoutes); // Chat-Nachrichten-Route mit Auth
 
 export default app;
