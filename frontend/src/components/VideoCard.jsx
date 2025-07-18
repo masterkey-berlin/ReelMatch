@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useMatches } from '../hooks/useMatches';
 import MatchModal from './MatchModal';
 import './VideoCard.css';
 import { useAuth } from '../context/AuthContext';
+import { deletePostApi } from '../services/api';
 
 const VideoCard = ({ 
   video, 
   videoOwner, 
   roomName, 
   showLikeButton = true,
-  onVideoLike 
+  onVideoLike,
+  onVideoDelete
 }) => {
   const { likeVideo } = useMatches();
   const { user } = useAuth(); // <--- Aktuellen User holen
@@ -17,6 +19,9 @@ const VideoCard = ({
   const [hasLiked, setHasLiked] = useState(false);
   const [matchModalData, setMatchModalData] = useState(null);
   const [showThumbnail, setShowThumbnail] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const deleteButtonRef = useRef(null);
 
   // Debug: Zeige showLikeButton status
   console.log('VideoCard - showLikeButton:', showLikeButton);
@@ -52,8 +57,87 @@ const VideoCard = ({
     setMatchModalData(null);
   };
 
+  // Funktion zum Löschen eines Videos
+  const handleDeleteVideo = async () => {
+    if (isDeleting) return;
+    
+    // Button sofort deaktivieren, um mehrfache Klicks zu verhindern
+    setIsDeleting(true);
+    
+    try {
+      // Extrahiere die roomId aus dem roomName (Format: "Raum {roomId}")
+      // Debug-Ausgabe für den Raumnamen
+      console.log('Lösche Video - roomName:', roomName);
+      
+      // Verschiedene Formate unterstützen: "Raum 123", "Raum123", "123"
+      let roomId = null;
+      
+      // Versuch 1: Format "Raum 123"
+      const roomIdMatch1 = roomName.match(/Raum\s+(\d+)/);
+      if (roomIdMatch1) {
+        roomId = roomIdMatch1[1];
+      } else {
+        // Versuch 2: Format "Raum123"
+        const roomIdMatch2 = roomName.match(/Raum(\d+)/);
+        if (roomIdMatch2) {
+          roomId = roomIdMatch2[1];
+        } else {
+          // Versuch 3: Nur Zahlen
+          const roomIdMatch3 = roomName.match(/(\d+)/);
+          if (roomIdMatch3) {
+            roomId = roomIdMatch3[1];
+          }
+        }
+      }
+      
+      if (!roomId) {
+        console.error('Konnte keine Room-ID aus dem Raumnamen extrahieren:', roomName);
+        setIsDeleting(false);
+        return;
+      }
+      
+      console.log(`Lösche Video ${video.id} in Raum ${roomId}...`);
+      
+      // Stelle sicher, dass wir die userId haben
+      if (!user || (!user.id && !user.user_id)) {
+        console.error('Kein Benutzer gefunden oder keine Benutzer-ID vorhanden');
+        setIsDeleting(false);
+        return;
+      }
+      
+      // Verwende user.user_id oder user.id als userId
+      const userId = user.user_id || user.id;
+      console.log('Verwende userId für Löschvorgang:', userId);
+      
+      // Verwende die spezialisierte deletePostApi-Funktion
+      const response = await deletePostApi(roomId, video.id, userId);
+      console.log('Delete API Response:', response);
+      
+      console.log(`Video ${video.id} erfolgreich gelöscht!`, response);
+      
+      // Bestätigungsdialog schließen
+      setShowConfirmation(false);
+      
+      // Callback aufrufen, um die UI zu aktualisieren
+      if (onVideoDelete) {
+        onVideoDelete();
+      }
+    } catch (error) {
+      console.error('Fehler beim Löschen des Videos:', error);
+      setIsDeleting(false);
+      setShowConfirmation(false);
+    }
+  };
+
   // Prüfen, ob das Video dem angemeldeten User gehört
-  const isOwnVideo = user && videoOwner && user.id === videoOwner.id;
+  // Debug-Ausgabe für die Benutzer-IDs
+  console.log('VideoCard - Current user:', user);
+  console.log('VideoCard - Video owner:', videoOwner);
+  
+  // Vergleiche user.id oder user.user_id mit videoOwner.id
+  const isOwnVideo = user && videoOwner && 
+    ((user.user_id && user.user_id === videoOwner.id) || 
+     (user.id && user.id === videoOwner.id));
 
   return (
     <>
@@ -125,12 +209,36 @@ const VideoCard = ({
       {/* Löschen-Button unterhalb der Card, nur für eigene Videos */}
       {isOwnVideo && (
         <div className="delete-btn-row">
-          <button 
-            className="delete-btn-rect"
-            onClick={() => {/* Delete-Handler hier einfügen */}}
-          >
-            Löschen
-          </button>
+          {showConfirmation ? (
+            <div className="delete-confirmation">
+              <p>Video wirklich löschen?</p>
+              <div className="confirmation-buttons">
+                <button 
+                  className="confirm-btn yes"
+                  onClick={handleDeleteVideo}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? 'Wird gelöscht...' : 'Ja'}
+                </button>
+                <button 
+                  className="confirm-btn no"
+                  onClick={() => setShowConfirmation(false)}
+                  disabled={isDeleting}
+                >
+                  Nein
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button 
+              className="delete-btn-rect"
+              onClick={() => setShowConfirmation(true)}
+              disabled={isDeleting}
+              ref={deleteButtonRef}
+            >
+              Löschen
+            </button>
+          )}
         </div>
       )}
 

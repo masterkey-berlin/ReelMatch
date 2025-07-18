@@ -195,6 +195,65 @@
   background: #c0392b;
 }
 
+.delete-btn-rect:disabled {
+  background: #e74c3c88;
+  cursor: not-allowed;
+}
+
+/* Bestätigungsdialog Styles */
+.delete-confirmation {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  width: 100%;
+}
+
+.delete-confirmation p {
+  margin-bottom: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-btn {
+  padding: 8px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-btn.yes {
+  background: #e74c3c;
+  color: white;
+}
+
+.confirm-btn.yes:hover {
+  background: #c0392b;
+}
+
+.confirm-btn.no {
+  background: #ecf0f1;
+  color: #333;
+}
+
+.confirm-btn.no:hover {
+  background: #bdc3c7;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .like-btn-row {
   display: flex;
   justify-content: flex-end;
