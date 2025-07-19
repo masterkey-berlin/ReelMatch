@@ -1,5 +1,5 @@
 import * as InterestModel from '../models/interest.model.js';
-import * as MatchModel from '../models/match.model.js';
+import MatchModel from '../models/match.model.js';
 
 export const expressInterest = async (req, res) => {
   const initiatorId = req.user.id; // Aus der Auth-Middleware
@@ -47,6 +47,24 @@ export const getMyMatches = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error fetching matches.' });
+  }
+};
+
+export const deleteMatch = async (req, res) => {
+  const { matchId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const deletedMatch = await MatchModel.deleteMatch(matchId, userId);
+
+    if (!deletedMatch) {
+      return res.status(404).json({ message: 'Match nicht gefunden oder keine Berechtigung zum Löschen.' });
+    }
+
+    res.status(200).json({ message: 'Match erfolgreich gelöscht.', deletedMatch });
+  } catch (error) {
+    console.error('Fehler beim Löschen des Matches:', error);
+    res.status(500).json({ message: 'Fehler beim Löschen des Matches.' });
   }
 };
 

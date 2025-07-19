@@ -21,4 +21,7 @@ router.post('/interest', protectedRoute, matchController.expressInterest);
 router.post('/like-video', protectedRoute, matchController.likeVideo);
 router.get('/', protectedRoute, matchController.getMyMatches);
 
+// Route zum Löschen eines Matches
+router.delete('/:matchId', protectedRoute, matchController.deleteMatch);
+
 export default router;

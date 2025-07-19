@@ -64,11 +64,28 @@ export const getMatchBetweenUsers = async (userId, partnerId) => {
 };
 
 // Default export für Kompatibilität mit bestehenden Imports
+/**
+ * Löscht ein Match anhand der Match-ID.
+ * Stellt sicher, dass der anfragende Benutzer Teil des Matches ist.
+ * @param {number} matchId - Die ID des zu löschenden Matches.
+ * @param {number} userId - Die ID des Benutzers, der die Löschung anfordert.
+ * @returns {Promise<Object|null>} Das gelöschte Match-Objekt oder null, wenn nichts gelöscht wurde.
+ */
+export const deleteMatch = async (matchId, userId) => {
+  const result = await pool.query(
+    'DELETE FROM matches WHERE match_id = $1 AND (user1_id = $2 OR user2_id = $2) RETURNING *',
+    [matchId, userId]
+  );
+  return result.rows.length > 0 ? result.rows[0] : null;
+};
+
+// Default export für Kompatibilität mit bestehenden Imports
 const MatchModel = {
   createMatch,
   findMatchesByUserId,
   checkMatchExists,
-  getMatchBetweenUsers
+  getMatchBetweenUsers,
+  deleteMatch
 };
 
 export default MatchModel;

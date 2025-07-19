@@ -25,10 +25,24 @@ const MatchList = () => {
     fetchMatches();
   }, []);
 
-  // Funktion zum Schließen eines Match-Cards
-  const closeMatch = (matchId) => {
-    // Filter das Match aus der Liste
-    setMatches(matches.filter(match => match.match_id !== matchId));
+  // Funktion zum Löschen eines Matches
+  const closeMatch = async (matchId) => {
+    // Sicherheitsabfrage, um versehentliches Löschen zu verhindern
+    if (window.confirm('Bist du sicher, dass du dieses Match auflösen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      try {
+        // API-Aufruf zum Löschen des Matches
+        await apiClient.delete(`/matches/${matchId}`);
+        
+        // Bei Erfolg: Filter das Match aus der lokalen Liste
+        setMatches(matches.filter(match => match.match_id !== matchId));
+        console.log(`✅ Match ${matchId} erfolgreich gelöscht.`);
+
+      } catch (error) {
+        console.error(`❌ Fehler beim Löschen von Match ${matchId}:`, error);
+        // Benutzerfeedback bei Fehlern
+        alert('Das Match konnte nicht gelöscht werden. Bitte versuche es erneut.');
+      }
+    }
   };
 
   if (loading) {
