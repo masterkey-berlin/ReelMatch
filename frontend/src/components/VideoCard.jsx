@@ -38,7 +38,11 @@ const VideoCard = ({
       
       // Success feedback
       if (response.isMatch) {
-        setMatchModalData(response);
+        // Kombiniere die Server-Antwort mit den vollständigen Benutzerdaten des Video-Owners
+        setMatchModalData({ 
+          ...response, 
+          matchedUser: videoOwner 
+        });
       }
       
       // Callback für Parent-Komponente

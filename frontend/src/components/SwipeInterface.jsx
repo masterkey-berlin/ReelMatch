@@ -107,7 +107,12 @@ const SwipeInterface = ({ onMatch }) => {
         console.log('✅ Interest response:', response);
         
         if (response.isMatch && onMatch) {
-          onMatch(response);
+          // Wir übergeben die vollen Benutzerdaten des Matches an die onMatch-Funktion
+          onMatch({ 
+            ...response, 
+            matchedUser: currentUserData, // currentUserData enthält alle Infos zum Match-Partner
+            matchId: response.match.match_id // Die ID des Matches für die Weiterleitung
+          });
         }
       } catch (error) {
         console.error('❌ Fehler beim Swipen:', error);
