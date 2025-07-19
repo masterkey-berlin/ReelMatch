@@ -105,6 +105,24 @@ const chatService = {
       console.error('Fehler beim Löschen der Nachricht:', error);
       throw error;
     }
+  },
+
+  /**
+   * Löscht alle eigenen Nachrichten einer Konversation
+   * @param {number} partnerId - ID des Chat-Partners
+   * @returns {Promise<Object>} Information über die gelöschten Nachrichten
+   */
+  deleteConversation: async (partnerId) => {
+    try {
+      const response = await axios.delete(
+        `${API_URL}/messages/conversation/${partnerId}`,
+        { headers: getAuthHeader() }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Fehler beim Löschen der Konversation:', error);
+      throw error;
+    }
   }
 };
 

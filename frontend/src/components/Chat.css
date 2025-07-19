@@ -24,6 +24,7 @@
 .chat-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 14px 20px;
   background: linear-gradient(90deg, var(--primary-glow), var(--secondary-glow));
   color: var(--text-main);
@@ -36,7 +37,6 @@
   color: var(--text-main);
   font-size: 28px;
   cursor: pointer;
-  margin-right: 18px;
   padding: 0;
   filter: drop-shadow(0 0 6px var(--secondary-glow));
   transition: transform 0.2s ease, filter 0.2s ease;
@@ -50,6 +50,8 @@
 .chat-partner-info {
   display: flex;
   align-items: center;
+  flex: 1;
+  margin-left: 18px;
 }
 
 .chat-avatar {
@@ -190,6 +192,32 @@
   color: rgba(255, 0, 0, 1);
   opacity: 1;
   transform: scale(1.1);
+}
+
+.delete-conversation-btn {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+  margin-left: 12px;
+}
+
+.delete-conversation-btn:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 1);
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
 }
 
 .message-form {

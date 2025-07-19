@@ -11,5 +11,7 @@ router.get('/conversation/:partnerId', messageController.getConversation);
 router.post('/send', messageController.sendMessage);
 // Nachricht löschen
 router.delete('/delete/:messageId', messageController.deleteMessage);
+// Gesamte Konversation löschen (nur eigene Nachrichten)
+router.delete('/conversation/:partnerId', messageController.deleteConversation);
 
 export default router;

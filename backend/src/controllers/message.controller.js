@@ -185,4 +185,42 @@ const deleteMessage = async (req, res) => {
   }
 };
 
-export { sendMessage, getConversation, getChatList, markAsRead, deleteMessage };
+/**
+ * Löscht alle Nachrichten einer Konversation für den aktuellen Benutzer
+ * @param {Object} req - Express Request-Objekt
+ * @param {Object} res - Express Response-Objekt
+ */
+const deleteConversation = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { partnerId } = req.params;
+
+    if (!partnerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Partner-ID ist erforderlich'
+      });
+    }
+
+    const result = await MessageModel.deleteConversation(userId, partnerId);
+    return res.status(200).json({
+      success: true,
+      message: `${result.deletedCount} eigene Nachrichten erfolgreich gelöscht`,
+      data: result
+    });
+  } catch (error) {
+    console.error('Fehler beim Löschen der Konversation:', error);
+    if (error.message === 'Kein Match zwischen diesen Benutzern') {
+      return res.status(403).json({
+        success: false,
+        message: error.message
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: 'Interner Serverfehler beim Löschen der Konversation'
+    });
+  }
+};
+
+export { sendMessage, getConversation, getChatList, markAsRead, deleteMessage, deleteConversation };

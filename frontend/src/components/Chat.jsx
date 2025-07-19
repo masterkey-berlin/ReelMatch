@@ -86,6 +86,10 @@ const Chat = () => {
   
   // Nachricht löschen
   const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm('Möchtest du diese Nachricht wirklich löschen?')) {
+      return;
+    }
+    
     try {
       await chatService.deleteMessage(messageId);
       // Konversation neu laden nach dem Löschen
@@ -93,6 +97,23 @@ const Chat = () => {
     } catch (error) {
       console.error('Fehler beim Löschen der Nachricht:', error);
       setError('Nachricht konnte nicht gelöscht werden.');
+    }
+  };
+
+  // Gesamte Konversation löschen (nur eigene Nachrichten)
+  const handleDeleteConversation = async () => {
+    if (!window.confirm('Möchtest du alle deine Nachrichten in diesem Chat wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      return;
+    }
+    
+    try {
+      const result = await chatService.deleteConversation(partnerId);
+      console.log('Konversation gelöscht:', result);
+      // Konversation neu laden nach dem Löschen
+      await loadConversation();
+    } catch (error) {
+      console.error('Fehler beim Löschen der Konversation:', error);
+      setError('Konversation konnte nicht gelöscht werden.');
     }
   };
 
@@ -216,6 +237,13 @@ const Chat = () => {
           </div>
           <h2>{partner.username}</h2>
         </div>
+        <button 
+          className="delete-conversation-btn"
+          onClick={handleDeleteConversation}
+          title="Alle meine Nachrichten löschen"
+        >
+          🗑️
+        </button>
       </div>
       
       <div className="messages-container">

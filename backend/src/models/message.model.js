@@ -93,7 +93,7 @@ const MessageModel = {
         'SELECT * FROM messages WHERE message_id = $1 AND sender_id = $2',
         [messageId, userId]
       );
-      
+
       if (checkResult.rows.length === 0) {
         throw new Error('Nachricht nicht gefunden oder keine Berechtigung zum Löschen');
       }
@@ -110,6 +110,37 @@ const MessageModel = {
       };
     } catch (error) {
       console.error('Fehler beim Löschen der Nachricht:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Löscht alle Nachrichten einer Konversation für einen Benutzer
+   * @param {number} userId - ID des aktuellen Benutzers
+   * @param {number} partnerId - ID des Chat-Partners
+   * @returns {Promise<Object>} Information über die gelöschten Nachrichten
+   */
+  async deleteConversation(userId, partnerId) {
+    try {
+      // Prüfen, ob ein Match zwischen den Benutzern besteht
+      const match = await MatchModel.getMatchBetweenUsers(userId, partnerId);
+      if (!match) {
+        throw new Error('Kein Match zwischen diesen Benutzern');
+      }
+
+      // Alle Nachrichten für dieses Match löschen, die vom aktuellen Benutzer gesendet wurden
+      const deleteResult = await db.query(
+        'DELETE FROM messages WHERE match_id = $1 AND sender_id = $2 RETURNING *',
+        [match.match_id, userId]
+      );
+      
+      return {
+        success: true,
+        deletedCount: deleteResult.rows.length,
+        deletedMessages: deleteResult.rows
+      };
+    } catch (error) {
+      console.error('Fehler beim Löschen der Konversation:', error);
       throw error;
     }
   },
