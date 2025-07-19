@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // API-URL aus der Umgebung oder Fallback verwenden
-const API_URL = window.env?.REACT_APP_API_URL || 'http://localhost:3001/api/v1';
+// Frontend läuft auf Port 8080 mit Nginx-Proxy für /api/ -> Backend
+const API_URL = window.env?.REACT_APP_API_URL || 'http://localhost:8080/api/v1';
 
 // Hilfsfunktion, um den Auth-Header zu erstellen
 const getAuthHeader = () => {
@@ -21,9 +22,10 @@ const chatService = {
    */
   sendMessage: async (receiverId, content) => {
     try {
+      console.log('Sende Nachricht an:', receiverId, 'Inhalt:', content);
       const response = await axios.post(
         `${API_URL}/messages/send`,
-        { receiverId, content },
+        { receiverId: parseInt(receiverId), content },
         { headers: getAuthHeader() }
       );
       return response.data;
@@ -83,6 +85,24 @@ const chatService = {
       return response.data;
     } catch (error) {
       console.error('Fehler beim Markieren der Nachrichten als gelesen:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Löscht eine Nachricht
+   * @param {number} messageId - ID der zu löschenden Nachricht
+   * @returns {Promise<Object>} Information über die gelöschte Nachricht
+   */
+  deleteMessage: async (messageId) => {
+    try {
+      const response = await axios.delete(
+        `${API_URL}/messages/delete/${messageId}`,
+        { headers: getAuthHeader() }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Fehler beim Löschen der Nachricht:', error);
       throw error;
     }
   }

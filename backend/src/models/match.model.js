@@ -30,10 +30,22 @@ export const findMatchesByUserId = async (userId) => {
  * @returns {Promise<boolean>} true, wenn ein Match besteht, sonst false
  */
 export const checkMatchExists = async (userId, partnerId) => {
+  // Sicherstellen, dass beide IDs als Integer behandelt werden
+  userId = parseInt(userId);
+  partnerId = parseInt(partnerId);
+
+  console.log(`Überprüfe Match zwischen Benutzer ${userId} und Partner ${partnerId}`);
+
   const result = await pool.query(
     'SELECT * FROM matches WHERE (user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1)',
     [userId, partnerId]
   );
+
+  console.log(`Match-Überprüfungsergebnis: ${result.rows.length > 0 ? 'Match gefunden' : 'Kein Match gefunden'}`);
+  if (result.rows.length > 0) {
+    console.log('Match-Details:', result.rows[0]);
+  }
+
   return result.rows.length > 0;
 };
 

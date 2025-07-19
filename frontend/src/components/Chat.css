@@ -1,9 +1,9 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 120px); /* Mehr Platz für Footer */
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 20px auto; /* Unten mehr Margin */
   background-color: var(--background-dark);
   border-radius: 18px;
   overflow: hidden;
@@ -152,11 +152,44 @@
   margin-bottom: 6px;
 }
 
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
 .message-time {
-  font-size: 12px;
-  color: var(--text-muted);
-  text-align: right;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1;
+  font-weight: 400;
+}
+
+.delete-message-btn {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: rgba(255, 0, 0, 0.8);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  transition: all 0.2s ease;
   opacity: 0.7;
+}
+
+.delete-message-btn:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.5);
+  color: rgba(255, 0, 0, 1);
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .message-form {
@@ -230,8 +263,9 @@
 /* Responsive Design */
 @media (max-width: 600px) {
   .chat-container {
-    height: calc(100vh - 56px);
+    height: calc(100vh - 100px); /* Mehr Platz für Footer auf Mobile */
     border-radius: 0;
+    margin-bottom: 10px;
   }
   .message {
     max-width: 85%;

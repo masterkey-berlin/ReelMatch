@@ -6,8 +6,10 @@ import './Chat.css';
 
 const Chat = () => {
   const { partnerId } = useParams();
-  const { currentUser } = useAuth();
+  const { user: currentUser } = useAuth();
   const navigate = useNavigate();
+  
+
   
   const [messages, setMessages] = useState([]);
   const [partner, setPartner] = useState(null);
@@ -22,12 +24,16 @@ const Chat = () => {
     const groups = {};
     
     messages.forEach(message => {
-      const date = new Date(message.created_at);
-      const dateString = date.toLocaleDateString('de-DE', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      const date = new Date(message.sent_at || message.created_at);
+      
+      // Prüfe, ob das Datum gültig ist
+      const dateString = isNaN(date.getTime()) 
+        ? 'Heute' // Fallback für ungültige Daten
+        : date.toLocaleDateString('de-DE', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          });
       
       if (!groups[dateString]) {
         groups[dateString] = [];
@@ -48,13 +54,17 @@ const Chat = () => {
       setPartner(data.partner);
       setError(null);
     } catch (err) {
-      // Nur bei echten Fehlern anzeigen, nicht bei leeren Nachrichten
-      if (err?.response && (err.response.status === 403 || err.response.status === 404)) {
-        setError('Konversation konnte nicht geladen werden.');
+      console.error('Fehler beim Laden der Konversation:', err);
+      // Detaillierte Fehlerinformationen anzeigen
+      if (err?.response?.data) {
+        console.error('Server-Antwort:', err.response.data);
+        setError(`Fehler: ${err.response?.data?.message || 'Unbekannter Fehler'}`);
+      } else if (err?.response && (err.response.status === 403 || err.response.status === 404)) {
+        setError('Konversation konnte nicht geladen werden. Möglicherweise existiert kein Match mit diesem Benutzer.');
       } else {
         // Bei leeren Nachrichten trotzdem Chat anzeigen
         setMessages([]);
-        setPartner({ id: partnerId, username: 'Unbekannt' });
+        setPartner({ id: partnerId, username: 'Chat-Partner' });
         setError(null);
       }
     } finally {
@@ -74,34 +84,49 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
   
+  // Nachricht löschen
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      await chatService.deleteMessage(messageId);
+      // Konversation neu laden nach dem Löschen
+      await loadConversation();
+    } catch (error) {
+      console.error('Fehler beim Löschen der Nachricht:', error);
+      setError('Nachricht konnte nicht gelöscht werden.');
+    }
+  };
+
   // Nachricht senden
   const handleSendMessage = async (e) => {
     e.preventDefault();
     
     if (!newMessage.trim()) return;
     
+    const messageToSend = newMessage;
+    setNewMessage(''); // Eingabefeld sofort leeren
+    
     try {
-      // Optimistisches UI-Update
-      const tempMessage = {
-        id: `temp-${Date.now()}`,
-        sender_id: currentUser.id,
-        receiver_id: partnerId,
-        content: newMessage,
-        created_at: new Date().toISOString(),
-        read: false
-      };
+      console.log('Sende Nachricht:', {
+        currentUser: currentUser,
+        partnerId: partnerId,
+        message: messageToSend
+      });
       
-      setMessages(prevMessages => [...prevMessages, tempMessage]);
-      setNewMessage('');
+      // Nachricht senden
+      await chatService.sendMessage(partnerId, messageToSend);
       
-      // Tatsächliches Senden
-      await chatService.sendMessage(partnerId, newMessage);
-      
-      // Optional: Konversation neu laden, um die tatsächliche Nachricht zu erhalten
-      // await loadConversation();
+      // Konversation neu laden, um die neue Nachricht anzuzeigen
+      await loadConversation();
     } catch (err) {
       console.error('Fehler beim Senden der Nachricht:', err);
-      setError('Nachricht konnte nicht gesendet werden.');
+      // Bei Fehler die Nachricht zurück ins Eingabefeld setzen
+      setNewMessage(messageToSend);
+      
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Fehler: ${err.response.data.message}`);
+      } else {
+        setError('Nachricht konnte nicht gesendet werden. Bitte versuche es später erneut.');
+      }
     }
   };
   
@@ -110,15 +135,31 @@ const Chat = () => {
     navigate('/chats');
   };
   
+  // Debug-Ausgaben (können entfernt werden)
+  // console.log('Chat Render - loading:', loading);
+  // console.log('Chat Render - error:', error);
+  // console.log('Chat Render - partner:', partner);
+  // console.log('Chat Render - messages:', messages);
+  // console.log('Chat Render - currentUser:', currentUser);
+  // console.log('Chat Render - partnerId:', partnerId);
+
   if (loading) {
     return <div className="chat-container loading">Lade Konversation...</div>;
   }
-  
+
   if (error) {
     return (
       <div className="chat-container error">
         <p>{error}</p>
         <button onClick={handleBackToList}>Zurück zur Chat-Liste</button>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="chat-container loading">
+        <p>Lade Benutzerdaten...</p>
       </div>
     );
   }
@@ -183,15 +224,33 @@ const Chat = () => {
             <div className="message-date">{date}</div>
             {dateMessages.map(message => (
               <div 
-                key={message.id} 
+                key={message.message_id} 
                 className={`message ${message.sender_id === currentUser.id ? 'sent' : 'received'}`}
               >
                 <div className="message-content">{message.content}</div>
-                <div className="message-time">
-                  {new Date(message.created_at).toLocaleTimeString('de-DE', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                <div className="message-footer">
+                  <div className="message-time">
+                    {(() => {
+                      const timestamp = message.sent_at || message.created_at;
+                      const date = new Date(timestamp);
+                      if (isNaN(date.getTime())) {
+                        return 'Jetzt'; // Fallback für ungültige Daten
+                      }
+                      return date.toLocaleTimeString('de-DE', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      });
+                    })()} 
+                  </div>
+                  {message.sender_id === currentUser.id && (
+                    <button 
+                      className="delete-message-btn"
+                      onClick={() => handleDeleteMessage(message.message_id)}
+                      title="Nachricht löschen"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

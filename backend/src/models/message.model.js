@@ -12,20 +12,29 @@ const MessageModel = {
    */
   async createMessage(senderId, receiverId, content) {
     try {
+      // Sicherstellen, dass senderId und receiverId als Integer behandelt werden
+      senderId = parseInt(senderId);
+      receiverId = parseInt(receiverId);
+
+      console.log('MessageModel.createMessage:', { senderId, receiverId, content });
+
       // Prüfen, ob ein Match zwischen den Benutzern besteht
       const match = await MatchModel.getMatchBetweenUsers(senderId, receiverId);
+
+      console.log('Match gefunden:', match);
 
       if (!match) {
         throw new Error('Kein Match zwischen diesen Benutzern');
       }
 
       const result = await db.query(
-        `INSERT INTO messages (match_id, sender_id, content) 
-         VALUES ($1, $2, $3) 
+        `INSERT INTO messages (match_id, sender_id, content, sent_at) 
+         VALUES ($1, $2, $3, NOW()) 
          RETURNING *`,
         [match.match_id, senderId, content]
       );
 
+      console.log('Nachricht erstellt:', result.rows[0]);
       return result.rows[0];
     } catch (error) {
       console.error('Fehler beim Erstellen der Nachricht:', error);
@@ -67,6 +76,40 @@ const MessageModel = {
       };
     } catch (error) {
       console.error('Fehler beim Abrufen der Konversation:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Löscht eine Nachricht (nur vom Sender)
+   * @param {number} messageId - ID der zu löschenden Nachricht
+   * @param {number} userId - ID des Benutzers, der die Nachricht löschen möchte
+   * @returns {Promise<Object>} Information über die gelöschte Nachricht
+   */
+  async deleteMessage(messageId, userId) {
+    try {
+      // Prüfen, ob die Nachricht existiert und dem Benutzer gehört
+      const checkResult = await db.query(
+        'SELECT * FROM messages WHERE message_id = $1 AND sender_id = $2',
+        [messageId, userId]
+      );
+      
+      if (checkResult.rows.length === 0) {
+        throw new Error('Nachricht nicht gefunden oder keine Berechtigung zum Löschen');
+      }
+      
+      // Nachricht löschen
+      const deleteResult = await db.query(
+        'DELETE FROM messages WHERE message_id = $1 AND sender_id = $2 RETURNING *',
+        [messageId, userId]
+      );
+      
+      return {
+        success: true,
+        deletedMessage: deleteResult.rows[0]
+      };
+    } catch (error) {
+      console.error('Fehler beim Löschen der Nachricht:', error);
       throw error;
     }
   },

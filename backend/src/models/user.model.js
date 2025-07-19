@@ -72,6 +72,14 @@ export const updateUser = async (userId, userData) => {
   return result.rows[0];
 };
 
+// Alle Benutzer abrufen
+export const getAllUsers = async () => {
+  const result = await pool.query(
+    'SELECT user_id, username, email, profile_video_path, short_bio, created_at FROM users ORDER BY username'
+  );
+  return result.rows;
+};
+
 // Default export für Kompatibilität mit bestehenden Imports
 const UserModel = {
   findUserByUsername,
@@ -80,6 +88,7 @@ const UserModel = {
   updateUserVideoPath,
   findUserById,
   updateUser,
+  getAllUsers,
   getUserById: findUserById // Alias für Kompatibilität
 };
 

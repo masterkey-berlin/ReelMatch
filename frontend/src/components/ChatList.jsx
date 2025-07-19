@@ -87,6 +87,8 @@ const ChatList = () => {
             <div 
               key={partner.id} 
               className={`chat-list-item${partner.is_new_match ? ' new-match' : ''}`}
+              onClick={() => handleChatSelect(partner.id)}
+              style={{ cursor: 'pointer' }}
             >
               <div className="chat-avatar-container">
                 <div className="chat-list-avatar">
@@ -104,7 +106,10 @@ const ChatList = () => {
                   {partner.is_new_match ? (
                     <button
                       className="start-chat-btn"
-                      onClick={() => handleChatSelect(partner.id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Verhindert doppelten Click
+                        handleChatSelect(partner.id);
+                      }}
                     >Chat beginnen</button>
                   ) : (
                     <>

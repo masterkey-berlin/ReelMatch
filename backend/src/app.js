@@ -10,6 +10,7 @@ import matchRoutes from './api/matches/routes.js'; // ← Ist das da?
 import healthRoutes from './api/health.routes.js'; // Health-Route importieren
 import postsRoutes from './api/posts.routes.js'; // Posts-Route importieren
 import messageRoutes from './api/messages.routes.js'; // Chat-Nachrichten-Route importieren
+import adminRoutes from './api/admin.routes.js'; // Admin-Routen importieren
 
 // Auth-Middleware importieren
 import { protectedRoute } from './middleware/auth.middleware.js';
@@ -42,5 +43,6 @@ app.use('/api/v1/matches', protectedRoute, matchRoutes);
 app.use('/api/health', healthRoutes); // Health-Route ohne Auth
 app.use('/api/posts', protectedRoute, postsRoutes);
 app.use('/api/v1/messages', protectedRoute, messageRoutes); // Chat-Nachrichten-Route mit Auth
+app.use('/api/v1/admin', protectedRoute, adminRoutes); // Admin-Routen mit Auth
 
 export default app;

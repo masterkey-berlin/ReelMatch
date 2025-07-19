@@ -11,6 +11,8 @@ const sendMessage = async (req, res) => {
     const senderId = req.user.id;
     const { receiverId, content } = req.body;
 
+    console.log('Backend empfängt Nachricht:', { senderId, receiverId, content });
+
     if (!receiverId || !content) {
       return res.status(400).json({
         success: false,
@@ -19,8 +21,11 @@ const sendMessage = async (req, res) => {
     }
 
     // Prüfen, ob ein Match zwischen den Benutzern besteht
-    const matchExists = await MatchModel.checkMatchExists(senderId, receiverId);
+    const matchExists = await MatchModel.checkMatchExists(senderId, parseInt(receiverId));
+
+    // Nur Nachrichten zwischen Benutzern mit Match erlauben
     if (!matchExists) {
+      console.log(`Kein Match gefunden zwischen Benutzer ${senderId} und ${receiverId}`);
       return res.status(403).json({
         success: false,
         message: 'Du kannst nur Nachrichten an Benutzer senden, mit denen du ein Match hast'
@@ -142,4 +147,42 @@ const markAsRead = async (req, res) => {
   }
 };
 
-export { sendMessage, getConversation, getChatList, markAsRead };
+/**
+ * Löscht eine Nachricht
+ * @param {Object} req - Express Request-Objekt
+ * @param {Object} res - Express Response-Objekt
+ */
+const deleteMessage = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { messageId } = req.params;
+
+    if (!messageId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nachrichten-ID ist erforderlich'
+      });
+    }
+
+    const result = await MessageModel.deleteMessage(messageId, userId);
+    return res.status(200).json({
+      success: true,
+      message: 'Nachricht erfolgreich gelöscht',
+      data: result
+    });
+  } catch (error) {
+    console.error('Fehler beim Löschen der Nachricht:', error);
+    if (error.message === 'Nachricht nicht gefunden oder keine Berechtigung zum Löschen') {
+      return res.status(403).json({
+        success: false,
+        message: error.message
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: 'Interner Serverfehler beim Löschen der Nachricht'
+    });
+  }
+};
+
+export { sendMessage, getConversation, getChatList, markAsRead, deleteMessage };

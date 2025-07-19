@@ -15,6 +15,7 @@ import RegisterForm from './components/auth/RegisterForm';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import ChatsPage from './pages/ChatsPage';
 import ChatPage from './pages/ChatPage';
+import AdminTools from './components/AdminTools';
 
 // Platzhalter-Seiten für den Footer
 const Impressum = () => (
@@ -113,6 +114,7 @@ function App() {
             <Route path="matches" element={<ProtectedRoute><MatchList /></ProtectedRoute>} />
             <Route path="chats" element={<ProtectedRoute><ChatsPage /></ProtectedRoute>} />
             <Route path="chat/:partnerId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+            <Route path="admin" element={<ProtectedRoute><AdminTools /></ProtectedRoute>} />
             <Route path="*" element={<div><h2>404 - Seite nicht gefunden</h2></div>} />
           </Route>
         </Routes>
