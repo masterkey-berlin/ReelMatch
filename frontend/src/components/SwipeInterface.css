@@ -1,5 +1,5 @@
 .swipe-interface {
-  max-width: 500px;
+  max-width: 450px; /* Reduzierte Breite */
   margin: 0 auto;
   padding: 20px 10px;
   height: calc(100vh - 70px - 70px); /* Viewport minus Header (70px) minus Footer (70px) */
@@ -15,7 +15,9 @@
   overflow: hidden;
   transition: transform 0.3s ease;
   height: calc(100vh - 140px - 40px); /* Passt in den verfügbaren Platz minus Padding */
-  max-height: 650px; /* Maximale Höhe angemessen begrenzen */
+  max-height: 600px; /* Reduzierte maximale Höhe */
+  max-width: 400px; /* Begrenzte Breite */
+  margin: 0 auto; /* Zentrieren */
   display: flex;
   flex-direction: column;
 }

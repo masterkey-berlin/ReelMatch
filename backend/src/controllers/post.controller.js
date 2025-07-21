@@ -1,11 +1,18 @@
 import * as PostModel from '../models/post.model.js'; // Stelle sicher, dass dieser Import da ist
 
 export const createVideoPost = async (req, res) => {
-  const { userId, roomId } = req.params;
+  // Verwende den authentifizierten Benutzer aus req.user statt aus URL-Parametern
+  const { roomId } = req.params;
   const { textContent } = req.body;
 
-  // NEU: Validierung
-  if (!userId || isNaN(Number(userId)) || !roomId || isNaN(Number(roomId))) {
+  // Authentifizierten Benutzer verwenden
+  const userId = req.user.id;
+
+  console.log('Creating post with authenticated user:', req.user);
+  console.log('User ID for post:', userId);
+
+  // Validierung
+  if (!userId || !roomId || isNaN(Number(roomId))) {
     return res.status(400).json({ message: 'userId und roomId müssen gesetzt und Zahlen sein!' });
   }
 

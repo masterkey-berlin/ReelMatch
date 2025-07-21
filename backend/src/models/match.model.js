@@ -22,3 +22,70 @@ export const findMatchesByUserId = async (userId) => {
   );
   return result.rows;
 };
+
+/**
+ * Prüft, ob ein Match zwischen zwei Benutzern besteht
+ * @param {number} userId - ID des ersten Benutzers
+ * @param {number} partnerId - ID des zweiten Benutzers
+ * @returns {Promise<boolean>} true, wenn ein Match besteht, sonst false
+ */
+export const checkMatchExists = async (userId, partnerId) => {
+  // Sicherstellen, dass beide IDs als Integer behandelt werden
+  userId = parseInt(userId);
+  partnerId = parseInt(partnerId);
+
+  console.log(`Überprüfe Match zwischen Benutzer ${userId} und Partner ${partnerId}`);
+
+  const result = await pool.query(
+    'SELECT * FROM matches WHERE (user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1)',
+    [userId, partnerId]
+  );
+
+  console.log(`Match-Überprüfungsergebnis: ${result.rows.length > 0 ? 'Match gefunden' : 'Kein Match gefunden'}`);
+  if (result.rows.length > 0) {
+    console.log('Match-Details:', result.rows[0]);
+  }
+
+  return result.rows.length > 0;
+};
+
+/**
+ * Holt ein Match zwischen zwei Benutzern
+ * @param {number} userId - ID des ersten Benutzers
+ * @param {number} partnerId - ID des zweiten Benutzers
+ * @returns {Promise<Object|null>} Das Match-Objekt oder null, wenn kein Match besteht
+ */
+export const getMatchBetweenUsers = async (userId, partnerId) => {
+  const result = await pool.query(
+    'SELECT * FROM matches WHERE (user1_id = $1 AND user2_id = $2) OR (user1_id = $2 AND user2_id = $1)',
+    [userId, partnerId]
+  );
+  return result.rows.length > 0 ? result.rows[0] : null;
+};
+
+// Default export für Kompatibilität mit bestehenden Imports
+/**
+ * Löscht ein Match anhand der Match-ID.
+ * Stellt sicher, dass der anfragende Benutzer Teil des Matches ist.
+ * @param {number} matchId - Die ID des zu löschenden Matches.
+ * @param {number} userId - Die ID des Benutzers, der die Löschung anfordert.
+ * @returns {Promise<Object|null>} Das gelöschte Match-Objekt oder null, wenn nichts gelöscht wurde.
+ */
+export const deleteMatch = async (matchId, userId) => {
+  const result = await pool.query(
+    'DELETE FROM matches WHERE match_id = $1 AND (user1_id = $2 OR user2_id = $2) RETURNING *',
+    [matchId, userId]
+  );
+  return result.rows.length > 0 ? result.rows[0] : null;
+};
+
+// Default export für Kompatibilität mit bestehenden Imports
+const MatchModel = {
+  createMatch,
+  findMatchesByUserId,
+  checkMatchExists,
+  getMatchBetweenUsers,
+  deleteMatch
+};
+
+export default MatchModel;

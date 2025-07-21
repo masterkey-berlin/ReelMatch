@@ -3,12 +3,17 @@ import cors from 'cors';
 import path from 'path'; // Wichtig für __dirname
 import { fileURLToPath } from 'url'; // Wichtig für __dirname in ES Modules
 
-import authRoutes from './api/auth.routes.js';
+import authRoutes from './routes/auth.routes.js';
 import userRoutes from './api/users.routes.js';
 import roomRoutes from './api/rooms.routes.js'; // Neue Zeile
 import matchRoutes from './api/matches/routes.js'; // ← Ist das da?
 import healthRoutes from './api/health.routes.js'; // Health-Route importieren
 import postsRoutes from './api/posts.routes.js'; // Posts-Route importieren
+import messageRoutes from './api/messages.routes.js'; // Chat-Nachrichten-Route importieren
+import adminRoutes from './api/admin.routes.js'; // Admin-Routen importieren
+
+// Auth-Middleware importieren
+import { protectedRoute } from './middleware/auth.middleware.js';
 
 const app = express();
 
@@ -30,10 +35,14 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/rooms', roomRoutes);
-app.use('/api/v1/matches', matchRoutes); // ← Ist das da?
-app.use('/api/health', healthRoutes); // Health-Route einbinden
-app.use('/api/posts', postsRoutes); // Posts-Route einbinden
+
+// Alle anderen API-Routen mit protectedRoute-Middleware schützen
+app.use('/api/v1/users', protectedRoute, userRoutes);
+app.use('/api/v1/rooms', protectedRoute, roomRoutes);
+app.use('/api/v1/matches', protectedRoute, matchRoutes);
+app.use('/api/health', healthRoutes); // Health-Route ohne Auth
+app.use('/api/posts', protectedRoute, postsRoutes);
+app.use('/api/v1/messages', protectedRoute, messageRoutes); // Chat-Nachrichten-Route mit Auth
+app.use('/api/v1/admin', protectedRoute, adminRoutes); // Admin-Routen mit Auth
 
 export default app;

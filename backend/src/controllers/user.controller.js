@@ -1,7 +1,11 @@
 import * as UserModel from '../models/user.model.js';
 
 export const uploadIntroVideo = async (req, res) => {
-  const { userId } = req.params;
+  // Verwende die authentifizierte Benutzer-ID aus req.user, wenn vorhanden
+  // Fallback auf URL-Parameter userId, wenn req.user nicht vorhanden ist
+  const userId = req.user?.id || req.params.userId;
+
+  console.log('uploadIntroVideo: Using user ID:', userId, 'from auth:', !!req.user);
 
   if (!req.file) {
     return res.status(400).json({ message: 'No video file uploaded.' });
@@ -25,7 +29,12 @@ export const uploadIntroVideo = async (req, res) => {
 
 // Neue Funktion für das User-Profil
 export const getProfile = async (req, res) => {
-  const { userId } = req.params;
+  // Verwende die authentifizierte Benutzer-ID aus req.user, wenn vorhanden
+  // Fallback auf URL-Parameter userId, wenn req.user nicht vorhanden ist
+  const userId = req.user?.id || req.params.userId;
+
+  console.log('getProfile: Using user ID:', userId, 'from auth:', !!req.user);
+
   try {
     // Wir brauchen eine neue Model-Funktion dafür
     const user = await UserModel.findUserById(userId);
@@ -43,7 +52,12 @@ export const getProfile = async (req, res) => {
 
 // Hier die neue Funktion einfügen:
 export const updateProfile = async (req, res) => {
-  const { userId } = req.params;
+  // Verwende die authentifizierte Benutzer-ID aus req.user, wenn vorhanden
+  // Fallback auf URL-Parameter userId, wenn req.user nicht vorhanden ist
+  const userId = req.user?.id || req.params.userId;
+
+  console.log('updateProfile: Using user ID:', userId, 'from auth:', !!req.user);
+
   const { short_bio } = req.body;
 
   if (short_bio === undefined) {

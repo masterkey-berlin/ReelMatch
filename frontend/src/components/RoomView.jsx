@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import apiClient, { deletePostApi } from '../services/api'; // NEU: Import hinzufügen
+import apiClient from '../services/api';
 import PostUpload from './PostUpload'; // Angenommen, PostUpload ist eine eigene Komponente
 import VideoCard from './VideoCard'; // Import für VideoCard hinzufügen
 import styles from './RoomView.module.css';
@@ -16,7 +16,11 @@ function RoomView() {
   console.log('RoomView - Current user:', user);
   console.log('RoomView - User ID:', user?.user_id);
   
-  const currentUserId = user && user.user_id ? user.user_id : 2; // Fallback auf user_id: 2 für temp auth
+  // Wir verwenden nur die tatsächliche Benutzer-ID ohne Fallback
+  const currentUserId = user?.user_id;
+  
+  // Debug: Zeige die verwendete Benutzer-ID
+  console.log('RoomView - Using user ID for posts:', currentUserId);
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -36,23 +40,7 @@ function RoomView() {
     fetchPosts();
   }, [roomId, fetchPosts]);
 
-  // NEU: Handle-Funktion für das Löschen
-  const handleDeletePost = async (postIdToDelete) => {
-    if (!postIdToDelete) {
-      alert('Fehler: Post-ID ist nicht vorhanden!');
-      return;
-    }
-
-    if (window.confirm('Bist du sicher, dass du diesen Post löschen möchtest?')) {
-      try {
-        await deletePostApi(roomId, postIdToDelete, user?.user_id);
-        fetchPosts(); // Liste neu laden
-      } catch (error) {
-        console.error('Failed to delete post:', error);
-        alert('Löschen fehlgeschlagen. Du kannst nur deine eigenen Posts löschen.');
-      }
-    }
-  };
+  // Die Löschfunktion wurde in die VideoCard-Komponente verschoben
 
   // NEU: Handle-Funktion für Video-Likes in Räumen
   const handleVideoLike = (likeResponse) => {
@@ -71,7 +59,7 @@ function RoomView() {
       {/* "Neuen Post erstellen"-Bereich in einer eigenen Karte */}
       <div className={`${styles.newPostSection} card`}>
         <h3>Neuen Post erstellen</h3>
-        <PostUpload roomId={roomId} userId={currentUserId} onUploadSuccess={fetchPosts} />
+        <PostUpload roomId={roomId} onUploadSuccess={fetchPosts} />
       </div>
 
       <h3>Bestehende Posts</h3>
@@ -90,32 +78,26 @@ function RoomView() {
                 </div>
               </div>
               {post.text_content && <p className={styles.postContent}>{post.text_content}</p>}
-              {post.video_path && (              <VideoCard
-                video={{
-                  id: post.id,
-                  path: post.video_path,
-                  title: post.text_content || `Video in Raum ${roomId}`,
-                  description: post.text_content,
-                  created_at: post.created_at
-                }}
-                videoOwner={{
-                  id: post.user_id,
-                  username: post.username
-                }}
-                roomName={`Raum ${roomId}`}
-                showLikeButton={currentUserId !== post.user_id} // Eigene Videos nicht liken
-                onVideoLike={handleVideoLike}
-              />
+              {post.video_path && (
+                <VideoCard
+                  video={{
+                    id: post.id,
+                    path: post.video_path,
+                    title: post.text_content || `Video in Raum ${roomId}`,
+                    description: post.text_content,
+                    created_at: post.created_at
+                  }}
+                  videoOwner={{
+                    id: post.user_id,
+                    username: post.username
+                  }}
+                  roomName={`Raum ${roomId}`}
+                  showLikeButton={currentUserId !== post.user_id} // Eigene Videos nicht liken
+                  onVideoLike={handleVideoLike}
+                  onVideoDelete={fetchPosts} // Füge den onVideoDelete-Callback hinzu
+                />
               )}
-              {/* NEU: Delete-Button nur für eigene Posts */}
-              {currentUserId === post.user_id && (
-                <button
-                  onClick={() => handleDeletePost(post.id)}
-                  className={styles.deleteButton}
-                >
-                  Löschen
-                </button>
-              )}
+              {/* Delete-Button wurde in die VideoCard-Komponente verschoben */}
             </div>
           ))
         ) : (

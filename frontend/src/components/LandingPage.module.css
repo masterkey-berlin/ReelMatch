@@ -4,55 +4,157 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1; /* Wichtig: Sagt diesem Container, er soll den verfügbaren Platz im mainContent füllen */
+  flex: 1;
   text-align: center;
-  padding: 20px;
+  padding: 0;
+  height: 100vh;
+  background-color: var(--bg-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hintergrund-Effekt */
+.heroContainer::before {
+  /* Entfernt: durchschimmernder Rahmen/Hintergrund-Effekt */
+  content: none;
 }
 
 .heroLogo {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 1.5rem;
-  filter: drop-shadow(0 0 1.5rem var(--primary-glow));
+  width: 180px;
+  height: 180px;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 0 2rem var(--primary-glow));
+  animation: float 6s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .heroTitle, .heroSubtitle {
   font-family: 'Kalam', cursive;
-  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
+  text-shadow: 0 0 15px var(--primary-glow);
+  position: relative;
+  z-index: 1;
 }
 
 .heroTitle {
-  font-size: 4rem;
+  font-size: 4.5rem;
   font-weight: 700;
   letter-spacing: -0.05em;
   margin: 0;
+  color: white;
+  text-transform: none;
+  background: linear-gradient(to right, #fff, var(--primary-glow));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px var(--primary-glow));
 }
 
 .heroSubtitle {
-  font-size: 1.25rem;
-  color: var(--text-main);
-  margin-top: 0.5rem;
-  max-width: 500px;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  max-width: 600px;
+  line-height: 1.4;
 }
+
 .heroSubtitle span {
-  color: var(--text-main);
+  color: white;
   font-weight: bold;
+  position: relative;
+}
+
+.heroSubtitle span::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary-glow);
+  box-shadow: 0 0 10px var(--primary-glow);
 }
 
 .heroNav {
-  margin-top: 2.5rem;
+  margin-top: 3rem;
   display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap; /* Wichtig für mobile Ansicht */
+  gap: 2rem;
+  flex-wrap: wrap;
   justify-content: center;
+}
+
+.heroNav button {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroNav button:first-child {
+  background: var(--primary-glow);
+  color: white;
+}
+
+.heroNav button:last-child {
+  background: transparent;
+  border: 2px solid var(--primary-glow);
+  color: var(--primary-glow);
+}
+
+.heroNav button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px var(--primary-glow);
+}
+
+/* Animationen */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.6; }
 }
 
 /* Responsivität */
 @media (max-width: 768px) {
-  .heroTitle {
-    font-size: 2.5rem;
+  .heroContainer {
+    padding: 2rem;
   }
+
+  .heroLogo {
+    width: 140px;
+    height: 140px;
+  }
+
+  .heroTitle {
+    font-size: 3rem;
+  }
+
   .heroSubtitle {
-    font-size: 1rem;
+    font-size: 1.2rem;
+  }
+
+  .heroNav {
+    gap: 1rem;
+  }
+
+  .heroNav button {
+    width: 100%;
+    max-width: 300px;
   }
 }

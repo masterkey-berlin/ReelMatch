@@ -13,23 +13,36 @@ function Profile() {
   const [bio, setBio] = useState('');
   const [isEditingBio, setIsEditingBio] = useState(false);
 
+  // Debug: Zeige user info
+  console.log('Profile - Current user:', user);
+  console.log('Profile - User ID:', user?.id);
+
   // Funktion zum Abrufen der Profildaten
   const fetchProfile = useCallback(async () => {
     try {
-      const response = await apiClient.get(`/users/${userId}/profile`);
+      // Wenn userId nicht vorhanden ist, eigenes Profil laden
+      const profileId = userId || (user ? user.id : null);
+      
+      console.log('Fetching profile for user ID:', profileId);
+      
+      if (!profileId) {
+        setError('Kein Benutzer gefunden. Bitte melden Sie sich an.');
+        return;
+      }
+      
+      const response = await apiClient.get(`/users/${profileId}/profile`);
+      console.log('Profile data received:', response.data);
       setProfile(response.data);
       setBio(response.data.short_bio || ''); // Bio-State initial setzen
     } catch (err) {
       setError('Could not fetch profile.');
-      console.error(err);
+      console.error('Error fetching profile:', err);
     }
-  }, [userId]);
+  }, [userId, user]);
 
   useEffect(() => {
-    if (userId) {
-      fetchProfile();
-    }
-  }, [userId, fetchProfile]);
+    fetchProfile();
+  }, [fetchProfile]);
 
   // Funktion zum Speichern der Bio
   const handleBioSubmit = async (e) => {
@@ -97,10 +110,10 @@ function Profile() {
 
       <div className={`${styles.uploadSection} card`} style={{marginTop: '2rem'}}>
         <h3>Video-Intro hochladen / aktualisieren</h3>
-        <VideoUpload userId={userId} onUploadSuccess={onUploadSuccess} />
+        <VideoUpload userId={user?.id} onUploadSuccess={onUploadSuccess} />
       </div>
 
-      {user && user.user_id == userId && (
+      {user && user.id == userId && (
         <p style={{ color: 'limegreen' }}>Das ist dein eigenes Profil!</p>
       )}
     </div>

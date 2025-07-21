@@ -1,8 +1,23 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MatchModal.css';
 
 const MatchModal = ({ match, isOpen, onClose }) => {
-  if (!isOpen || !match) return null;
+  const navigate = useNavigate();
+    if (!isOpen || !match) return null;
+
+  // Der Match-Partner wird jetzt als 'matchedUser' übergeben
+  const partner = match.matchedUser;
+
+  const handleStartChat = () => {
+    if (partner && partner.id) {
+      onClose(); // Schließe das Modal
+      navigate(`/chat/${partner.id}`); // Leite zum Chat weiter
+    } else {
+      console.error('Fehler: Match-Partner-ID nicht gefunden.');
+      onClose();
+    }
+  };
 
   return (
     <div className="match-modal-overlay" onClick={onClose}>
@@ -30,10 +45,10 @@ const MatchModal = ({ match, isOpen, onClose }) => {
             
             <div className="match-user">
               <div className="user-avatar">
-                {match.user?.username?.[0]?.toUpperCase() || 'U'}
+                {partner?.username?.[0]?.toUpperCase() || 'U'}
               </div>
               <span className="user-name">
-                {match.user?.username || 'Unbekannt'}
+                {partner?.username || 'Unbekannt'}
               </span>
             </div>
           </div>
@@ -51,11 +66,7 @@ const MatchModal = ({ match, isOpen, onClose }) => {
             </button>
             <button 
               className="btn-primary"
-              onClick={() => {
-                // Hier später zur Chat-Funktion weiterleiten
-                console.log('Chat mit Match starten:', match);
-                onClose();
-              }}
+              onClick={handleStartChat}
             >
               Nachricht senden
             </button>

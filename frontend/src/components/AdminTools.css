@@ -1,0 +1,96 @@
+.admin-tools {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--bg-dark);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 128, 255, 0.3);
+  color: white;
+}
+
+.admin-tools h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--text-highlight);
+  text-shadow: 0 0 5px rgba(0, 128, 255, 0.5);
+}
+
+.admin-section {
+  margin-bottom: 30px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.admin-section h3 {
+  margin-bottom: 15px;
+  color: var(--text-highlight);
+}
+
+.match-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: var(--text-light);
+}
+
+.form-group select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 128, 255, 0.3);
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 16px;
+}
+
+.create-match-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #2980b9, #3498db);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.create-match-btn:hover {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  box-shadow: 0 0 10px rgba(0, 128, 255, 0.5);
+}
+
+.create-match-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.message {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.message.error {
+  background-color: rgba(255, 0, 0, 0.2);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  color: #ff6b6b;
+}
+
+.message.success {
+  background-color: rgba(0, 255, 0, 0.2);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  color: #5cff5c;
+}

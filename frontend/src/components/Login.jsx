@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 function Login() {
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -13,11 +13,15 @@ function Login() {
     e.preventDefault();
     setMessage('');
     try {
-      const response = await apiClient.post('/auth/login', { username });
-      login(response.data);
-      navigate('/rooms');
-    } catch (error) {
-      setMessage(error.response?.data?.message || 'Login fehlgeschlagen.');
+      // Username und Passwort trimmen
+      const result = await login(username.trim(), password.trim());
+      if (result.success) {
+        navigate('/rooms');
+      } else {
+        setMessage(result.error || 'Login fehlgeschlagen.');
+      }
+    } catch {
+      setMessage('Login fehlgeschlagen.');
     }
   };
 
@@ -30,6 +34,13 @@ function Login() {
           value={username}
           onChange={e => setUsername(e.target.value)}
           placeholder="Benutzername"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="Passwort"
           required
         />
         <button type="submit">Login</button>

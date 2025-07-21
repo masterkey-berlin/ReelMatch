@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMatches } from '../hooks/useMatches';
+import apiClient from '../services/api';
 import './SwipeInterface.css';
 
 const SwipeInterface = ({ onMatch }) => {
@@ -7,11 +8,34 @@ const SwipeInterface = ({ onMatch }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showIntroThumbnail, setShowIntroThumbnail] = useState(true);
   const [showPostThumbnails, setShowPostThumbnails] = useState({});
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  // Mock-Daten für Demo-Zwecke - Video-basierte Profile
-  const [users] = useState([
+  // Laden der Benutzer vom Backend
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        console.log('🔍 Fetching swipe users...');
+        // Zuerst versuchen wir, die Benutzer vom Backend zu laden
+        try {
+          const response = await apiClient.get('/users/swipe');
+          if (response.data && response.data.length > 0) {
+            setUsers(response.data);
+            console.log('✅ Swipe users loaded from API:', response.data);
+            return;
+          }
+        } catch (error) {
+          console.warn('⚠️ API endpoint not available:', error.message);
+          console.warn('⚠️ Falling back to mock data');
+        }
+        
+        // Wenn kein API-Endpunkt oder keine Daten, verwenden wir Mock-Daten
+        console.log('💡 Using mock swipe data');
+        // Wir verwenden IDs, die nicht mit der authentifizierten Benutzer-ID kollidieren
+        setUsers([
     {
-      id: 2,
+      id: 3,
       username: 'sarah_cool',
       bio: 'Liebe Comedy und Action-Filme! ',
       age: 25,
@@ -61,6 +85,13 @@ const SwipeInterface = ({ onMatch }) => {
       interests: ['Indie-Filme', 'Kunst', 'Fotografie']
     }
   ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -71,14 +102,24 @@ const SwipeInterface = ({ onMatch }) => {
 
     if (direction === 'right') {
       try {
+        console.log(`🎯 Expressing interest for user ${userId}`);
         const response = await expressInterest(userId);
+        console.log('✅ Interest response:', response);
         
         if (response.isMatch && onMatch) {
-          onMatch(response);
+          // Wir übergeben die vollen Benutzerdaten des Matches an die onMatch-Funktion
+          onMatch({ 
+            ...response, 
+            matchedUser: currentUserData, // currentUserData enthält alle Infos zum Match-Partner
+            matchId: response.match.match_id // Die ID des Matches für die Weiterleitung
+          });
         }
       } catch (error) {
-        console.error('Fehler beim Swipen:', error);
+        console.error('❌ Fehler beim Swipen:', error);
+        setErrorMessage('Fehler beim Swipen: ' + error.message);
       }
+    } else {
+      console.log(`👎 Skipping user ${userId}`);
     }
 
     // Zum nächsten User wechseln
@@ -87,6 +128,28 @@ const SwipeInterface = ({ onMatch }) => {
   };
 
   const currentUserData = users[currentIndex];
+
+  if (loading) {
+    return (
+      <div className="swipe-interface">
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <p>Lade potenzielle Matches...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="swipe-interface">
+        <div className="error">
+          <h3>Fehler</h3>
+          <p>{errorMessage}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUserData) {
     return (

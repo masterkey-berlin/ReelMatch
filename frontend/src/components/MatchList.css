@@ -2,6 +2,11 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  background-color: var(--container-bg);
+  border-radius: 16px;
+  box-shadow: 0 4px 32px 0 rgba(106, 48, 255, 0.3), 0 0 24px 2px var(--primary-glow);
+  border: 1.5px solid var(--border-color);
+  animation: glow-pulse 3s infinite alternate;
 }
 
 .match-list-header {
@@ -10,30 +15,32 @@
   align-items: center;
   margin-bottom: 25px;
   padding-bottom: 15px;
-  border-bottom: 2px solid #f1f1f1;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .match-list-header h2 {
-  color: #333;
+  color: var(--text-main);
   font-size: 24px;
   font-weight: 600;
   margin: 0;
+  text-shadow: 0 0 10px var(--primary-glow);
 }
 
-.refresh-btn {
-  background: #667eea;
-  color: white;
+.refresh-btn, .refresh-button {
+  background: linear-gradient(90deg, var(--primary-glow), var(--secondary-glow));
+  color: var(--text-main);
   border: none;
   padding: 10px 15px;
   border-radius: 20px;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: var(--glow-shadow);
 }
 
-.refresh-btn:hover {
-  background: #5a6fd8;
+.refresh-btn:hover, .refresh-button:hover {
   transform: translateY(-2px);
+  box-shadow: var(--glow-shadow-strong);
 }
 
 .matches-grid {
@@ -43,26 +50,28 @@
 }
 
 .match-card {
-  background: #ffffff; /* Weißer Hintergrund statt transparent */
+  background-color: var(--background-dark);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(106, 48, 255, 0.2);
+  border: 1px solid var(--border-color);
   position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
+  transition: all 0.3s ease;
 }
 
 .match-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--glow-shadow);
+  border-color: var(--primary-glow);
 }
 
 .match-avatar {
-  background: #6366f1; /* Leuchtende Farbe für Avatar */
-  color: white;
+  background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+  color: var(--text-main);
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -72,8 +81,9 @@
   font-size: 20px;
   font-weight: bold;
   margin: 0 auto 15px;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 3px solid var(--border-color);
+  box-shadow: var(--glow-shadow);
+  animation: avatar-pulse 2s infinite alternate;
 }
 
 .match-info {
@@ -82,10 +92,11 @@
 }
 
 .match-info h3 {
-  color: #333333; /* Dunkle Schrift für bessere Lesbarkeit */
+  color: var(--text-main);
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 4px 0;
+  text-shadow: 0 0 5px var(--primary-glow);
 }
 
 .match-info p {
@@ -139,18 +150,21 @@
 }
 
 .chat-button {
-  background: #10b981; /* Grüner Chat-Button */
-  color: white;
+  background: linear-gradient(90deg, var(--primary-glow), var(--secondary-glow));
+  color: var(--text-main);
   border: none;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 50px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
+  box-shadow: var(--glow-shadow);
+  transition: all 0.3s ease;
 }
 
 .chat-button:hover {
-  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: var(--glow-shadow-strong);
 }
 
 .loading {
@@ -251,6 +265,27 @@
 
 .close-match-btn:hover {
   background: rgba(0, 0, 0, 0.4);
+}
+
+/* Glow Animations */
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 4px 32px 0 rgba(106, 48, 255, 0.2), 0 0 24px 2px var(--primary-glow);
+  }
+  100% {
+    box-shadow: 0 4px 32px 0 rgba(0, 170, 255, 0.3), 0 0 24px 2px var(--secondary-glow);
+  }
+}
+
+@keyframes avatar-pulse {
+  0% {
+    box-shadow: 0 0 10px var(--primary-glow);
+    border-color: var(--primary-glow);
+  }
+  100% {
+    box-shadow: 0 0 20px var(--secondary-glow);
+    border-color: var(--secondary-glow);
+  }
 }
 
 /* Verhindern der Überlagerung */

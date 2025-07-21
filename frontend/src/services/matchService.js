@@ -1,16 +1,25 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
+// Helper-Funktion zum Abrufen des JWT-Tokens
+const getToken = () => {
+  return localStorage.getItem('reelmatch_token');
+};
+
 class MatchService {
   async expressInterest(targetUserId, interestType = 'like') {
     try {
       console.log(`🎯 Expressing ${interestType} for user ${targetUserId}`);
       
+      const token = getToken();
+      if (!token) {
+        throw new Error('Nicht authentifiziert');
+      }
+      
       const response = await fetch(`${API_BASE_URL}/matches/interest`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: Add Authorization header when JWT is implemented
-          // 'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           target_user_id: targetUserId,
@@ -36,12 +45,16 @@ class MatchService {
     try {
       console.log('📋 Fetching matches...');
       
+      const token = getToken();
+      if (!token) {
+        throw new Error('Nicht authentifiziert');
+      }
+      
       const response = await fetch(`${API_BASE_URL}/matches/`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: Add Authorization header when JWT is implemented
-          // 'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -61,14 +74,18 @@ class MatchService {
 
   async likeVideo(videoOwnerId, videoId) {
     try {
-      console.log(`🎬 Liking video ${videoId} from user ${videoOwnerId}`);
+      console.log(`🎥 Liking video ${videoId} from user ${videoOwnerId}`);
+      
+      const token = getToken();
+      if (!token) {
+        throw new Error('Nicht authentifiziert');
+      }
       
       const response = await fetch(`${API_BASE_URL}/matches/like-video`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // TODO: Add Authorization header when JWT is implemented
-          // 'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           videoOwnerId: videoOwnerId,

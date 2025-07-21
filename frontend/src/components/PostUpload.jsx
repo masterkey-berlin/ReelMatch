@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import apiClient from '../services/api';
 
-// Die Komponente akzeptiert onUploadSuccess, um die Post-Liste neu zu laden
-function PostUpload({ roomId, userId, onUploadSuccess }) {
+// Die Komponente akzeptiert onPostCreated, um die Post-Liste neu zu laden
+const PostUpload = ({ roomId, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [textContent, setTextContent] = useState('');
   const [message, setMessage] = useState('');
@@ -14,6 +14,16 @@ function PostUpload({ roomId, userId, onUploadSuccess }) {
       setMessage('Bitte wähle eine Videodatei.');
       return;
     }
+    
+    // Überprüfen, ob roomId vorhanden ist
+    if (!roomId) {
+      console.error('PostUpload: Missing required parameter roomId');
+      setMessage('Fehler: Room ID fehlt.');
+      return;
+    }
+    
+    console.log('PostUpload: Uploading with roomId:', roomId);
+    
     setIsUploading(true);
     setMessage('Uploading...');
 
@@ -22,19 +32,22 @@ function PostUpload({ roomId, userId, onUploadSuccess }) {
     formData.append('textContent', textContent);
 
     try {
-      await apiClient.post(`/rooms/${roomId}/users/${userId}/posts`, formData, {
+      console.log(`Uploading post to room ${roomId}`);
+      console.log('File being uploaded:', file.name, file.type, file.size);
+      
+      // API-Anfrage ohne userId im Pfad, da der authentifizierte Benutzer vom Backend verwendet wird
+      const response = await apiClient.post(`/rooms/${roomId}/posts`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setMessage('Post erfolgreich erstellt!');
       
-      // Formular zurücksetzen
-      setFile(null);
-      setTextContent('');
+      console.log('Upload response:', response.data);
+      setMessage('Post erfolgreich hochgeladen!');
+      setIsUploading(false);
       
-      // Eltern-Komponente benachrichtigen, um die Post-Liste neu zu laden
       if (onUploadSuccess) {
-        onUploadSuccess();
+        onUploadSuccess(response.data);
       }
+      setTextContent('');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Upload fehlgeschlagen.');
     } finally {

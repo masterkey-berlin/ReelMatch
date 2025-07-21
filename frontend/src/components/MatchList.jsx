@@ -1,30 +1,48 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../services/api';
 import './MatchList.css';
 
 const MatchList = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Hook-Problem umgehen - direkt Testdaten setzen
-    setTimeout(() => {
-      console.log('🧪 Setting test matches...');
-      setMatches([{
-        match_id: 1,
-        partner_id: 1,
-        partner_username: "Masterkey",
-        partner_video_path: "uploads/introVideo-1751880567232-849988527.mp4",
-        created_at: new Date().toISOString()
-      }]);
-      setLoading(false);
-      console.log('✅ Test matches set successfully');
-    }, 1000);
+    const fetchMatches = async () => {
+      try {
+        console.log('📋 Fetching matches...');
+        const response = await apiClient.get('/matches');
+        setMatches(response.data);
+        console.log('✅ Matches loaded:', response.data);
+      } catch (error) {
+        console.error('❌ Error loading matches:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchMatches();
   }, []);
 
-  // Funktion zum Schließen eines Match-Cards
-  const closeMatch = (matchId) => {
-    // Filter das Match aus der Liste
-    setMatches(matches.filter(match => match.match_id !== matchId));
+  // Funktion zum Löschen eines Matches
+  const closeMatch = async (matchId) => {
+    // Sicherheitsabfrage, um versehentliches Löschen zu verhindern
+    if (window.confirm('Bist du sicher, dass du dieses Match auflösen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      try {
+        // API-Aufruf zum Löschen des Matches
+        await apiClient.delete(`/matches/${matchId}`);
+        
+        // Bei Erfolg: Filter das Match aus der lokalen Liste
+        setMatches(matches.filter(match => match.match_id !== matchId));
+        console.log(`✅ Match ${matchId} erfolgreich gelöscht.`);
+
+      } catch (error) {
+        console.error(`❌ Fehler beim Löschen von Match ${matchId}:`, error);
+        // Benutzerfeedback bei Fehlern
+        alert('Das Match konnte nicht gelöscht werden. Bitte versuche es erneut.');
+      }
+    }
   };
 
   if (loading) {
@@ -73,7 +91,10 @@ const MatchList = () => {
               <div className="match-info">
                 <h3>{match.partner_username || 'Unbekannt'}</h3>
                 <p>Match seit {new Date(match.created_at || Date.now()).toLocaleDateString('de-DE')}</p>
-                <button className="chat-button">
+                <button 
+                  className="chat-button"
+                  onClick={() => navigate(`/chat/${match.partner_id}`)}
+                >
                   <span role="img" aria-label="chat">💬</span> Chat starten
                 </button>
               </div>
