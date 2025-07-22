@@ -1,17 +1,21 @@
-# Terraform-Konfiguration für ReelMatch AWS-Infrastruktur
+# Vereinfachte Terraform-Konfiguration für ReelMatch
 terraform {
   required_version = ">= 1.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
     }
   }
 }
 
 # AWS Provider
 provider "aws" {
-  region = var.aws_region
+  region = "eu-central-1"
 }
 
 # Datenquelle für verfügbare Availability Zones
@@ -19,19 +23,45 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# Datenquelle für Ubuntu AMI
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  owners      = ["099720109477"] # Canonical
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-20.04-lts-amd64-server-*"]
+# EC2 Instance
+resource "aws_instance" "reelmatch_server" {
+  ami           = "ami-02003f9f0fde924ea" // Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, from eu-central-1
+  instance_type          = "t2.large"  # Kostengünstiger als t3.medium
+  subnet_id              = aws_subnet.public.id
+  vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
+  key_name               = aws_key_pair.deployer.key_name
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
+  
+  root_block_device {
+    volume_size           = 30  # 30GB reichen aus - Videos werden in S3 gespeichert
+    volume_type           = "gp3"
+    encrypted             = true
+    delete_on_termination = true
+    
+    tags = {
+      Name        = "reelmatch-root-volume"
+      Project     = "ReelMatch"
+      Environment = "production"
+      ManagedBy   = "terraform"
+    }
   }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io docker-compose
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker ubuntu
+              sudo mkdir -p /home/ubuntu/reelmatch
+              sudo chown -R ubuntu:ubuntu /home/ubuntu/reelmatch
+              EOF
+
+  tags = {
+    Name        = "reelmatch-server"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -41,18 +71,24 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-vpc"
-  })
+  tags = {
+    Name        = "reelmatch-vpc"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-igw"
-  })
+  tags = {
+    Name        = "reelmatch-igw"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
 # Public Subnet
@@ -62,9 +98,12 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-public-subnet"
-  })
+  tags = {
+    Name        = "reelmatch-public-subnet"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
 # Route Table
@@ -76,9 +115,12 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.main.id
   }
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-public-rt"
-  })
+  tags = {
+    Name        = "reelmatch-public-rt"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
 # Route Table Association
@@ -111,7 +153,7 @@ resource "aws_security_group" "reelmatch_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.your_ip]
+    cidr_blocks = ["0.0.0.0/0"]  # Für Produktion sollte dies eingeschränkt werden
   }
 
   egress {
@@ -121,78 +163,167 @@ resource "aws_security_group" "reelmatch_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-sg"
-  })
+  tags = {
+    Name        = "reelmatch-sg"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
 # Key Pair
 resource "aws_key_pair" "deployer" {
-  key_name   = var.key_name
-  public_key = var.github_public_key
+  key_name   = "reelmatch-key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZ/0HxsneheYiqZWQNpDNyALk9XEGb30hGJnsOF1rN1HOZGIT4NiXYwgQet49XkIUjZX5I8tIUSyDyNDz95cDq02oPXhw8UqtaO3wJF5/QMowCD5+C3SKcV1KraSQW/B1uzNkFgNm2ULsARc+EQOZ14Z75LcWW5+pGqVDuhLtmmmWC6E/U/L2ClVrmYOywi93gRNBysd0ap9DsIm6Yx2hiyFOu4yNvSQADA+Z/DToNkex9o4MrrRQjhG8GDTosigIelfrdTEK4QiJqZ7HWratFpjynuEftE/mCz1EFcgopit75sVkry5EgAffZjUs5yWg/S7Vny472oLvSQLaFs/XrOOaQvkIQ2FFfC8WjcfXXDs2zFkFFTLzb2FzhNynXr8EC6szmeVVgBFCn428AYNh/NhXdJ8umxdsZlFiSy7pwQV9dfFbyYcvSSON2hzmY3rhuzT+CxxxnGEbnTl2wvX0WFo9yrfTwuE0GzlWfRROgHqMKmnFkXx95CxUxOXsLvLR3onNzGeyjZ3ZTTHBEzz4+VV1batflm7uaEq1UCJWVLeSXnADZHclcPl0ghzPPGN8sdH2xl0UBMpCA2UE/31FS9Cy3Pp265cBdKphUiQEi7sLxkMIlqoSQVqYoOUQDG9PRGqAIaOhvO9t8jGQoEhWB7scAFi+URIxRUvE4AbVPNQ== reelmatch@reelmatch"
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-key-pair"
-  })
-}
-
-# EC2 Instance
-resource "aws_instance" "reelmatch_server" {
-  ami                    = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
-  instance_type          = var.instance_type
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
-  key_name               = aws_key_pair.deployer.key_name
-  
-  root_block_device {
-    volume_size           = 30
-    volume_type           = "gp3"
-    encrypted             = true
-    delete_on_termination = true
-    
-    tags = merge(var.tags, {
-      Name = "reelmatch-root-volume"
-    })
+  tags = {
+    Name        = "reelmatch-key-pair"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
   }
+}
 
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io docker-compose
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker ubuntu
-              sudo mkdir -p /home/ubuntu/reelmatch
-              sudo chown -R ubuntu:ubuntu /home/ubuntu/reelmatch
-              EOF
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-server"
+
+# Keine Elastic IP - verwende automatische öffentliche IP (kostenlos)
+
+# S3-Bucket für ReelMatch-Dateien (Videos, Bilder, etc.)
+resource "aws_s3_bucket" "reelmatch_storage" {
+  bucket = "reelmatch-storage-${random_id.bucket_suffix.hex}"
+
+  tags = {
+    Name        = "reelmatch-storage"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
+}
+
+# Random ID für eindeutigen Bucket-Namen
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
+
+# S3-Bucket Versioning
+resource "aws_s3_bucket_versioning" "reelmatch_storage_versioning" {
+  bucket = aws_s3_bucket.reelmatch_storage.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# S3-Bucket Verschlüsselung
+resource "aws_s3_bucket_server_side_encryption_configuration" "reelmatch_storage_encryption" {
+  bucket = aws_s3_bucket.reelmatch_storage.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# S3-Bucket Public Access Block (Sicherheit)
+resource "aws_s3_bucket_public_access_block" "reelmatch_storage_pab" {
+  bucket = aws_s3_bucket.reelmatch_storage.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# IAM-Rolle für EC2-Instanz (für S3-Zugriff)
+resource "aws_iam_role" "ec2_s3_role" {
+  name = "reelmatch-ec2-s3-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "reelmatch-ec2-s3-role"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
+}
+
+# IAM-Policy für S3-Zugriff
+resource "aws_iam_role_policy" "ec2_s3_policy" {
+  name = "reelmatch-ec2-s3-policy"
+  role = aws_iam_role.ec2_s3_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.reelmatch_storage.arn,
+          "${aws_s3_bucket.reelmatch_storage.arn}/*"
+        ]
+      }
+    ]
   })
 }
 
-# Elastic IP
-resource "aws_eip" "reelmatch_eip" {
-  instance = aws_instance.reelmatch_server.id
-  domain   = "vpc"
+# IAM Instance Profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "reelmatch-ec2-profile"
+  role = aws_iam_role.ec2_s3_role.name
 
-  tags = merge(var.tags, {
-    Name = "reelmatch-eip"
-  })
+  tags = {
+    Name        = "reelmatch-ec2-profile"
+    Project     = "ReelMatch"
+    Environment = "production"
+    ManagedBy   = "terraform"
+  }
 }
 
 # Outputs
 output "public_ip" {
   description = "Public IP address of the EC2 instance"
-  value       = aws_eip.reelmatch_eip.public_ip
+  value       = aws_instance.reelmatch_server.public_ip
 }
 
 output "public_dns" {
   description = "Public DNS name of the EC2 instance"
-  value       = aws_eip.reelmatch_eip.public_dns
+  value       = aws_instance.reelmatch_server.public_dns
 }
 
 output "ssh_command" {
   description = "SSH command to connect to the instance"
-  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_eip.reelmatch_eip.public_ip}"
+  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_instance.reelmatch_server.public_ip}"
+}
+
+output "s3_bucket_name" {
+  description = "Name of the S3 bucket for ReelMatch storage"
+  value       = aws_s3_bucket.reelmatch_storage.bucket
+}
+
+output "s3_bucket_arn" {
+  description = "ARN of the S3 bucket for ReelMatch storage"
+  value       = aws_s3_bucket.reelmatch_storage.arn
+}
+
+output "instance_storage" {
+  description = "EC2 instance storage information"
+  value       = "30GB GP3 SSD (encrypted) - Videos stored in S3"
 }
