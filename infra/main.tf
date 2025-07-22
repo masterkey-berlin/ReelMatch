@@ -135,6 +135,7 @@ resource "aws_instance" "reelmatch_server" {
     volume_size = 30  # GB
     volume_type = "gp3"
     encrypted   = true
+    delete_on_termination = true
     
     tags = {
       Name = "reelmatch-root-volume-${terraform.workspace}"
@@ -190,11 +191,6 @@ resource "aws_instance" "reelmatch_server" {
   
   # Verbesserte Metriken
   monitoring = true
-  
-  # Root-Device löschen beim Terminieren
-  root_block_device {
-    delete_on_termination = true
-  }
 }
 
 # Elastic IP für die Instanz
