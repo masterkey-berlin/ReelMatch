@@ -20,5 +20,11 @@ build/
 # Betriebssystem-spezifisch
 .DS_Store
 Thumbs.db
+# Terraform
+.terraform.lock.hcl
+.terraform.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+.terraform
 
 
