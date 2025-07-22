@@ -40,20 +40,17 @@ jobs:
         terraform_wrapper: false
 
     - name: Terraform Init
-      working-directory: ./infra
       run: |
+        cd infra
         terraform init
-
-    - name: Terraform Plan
-      id: plan
-      working-directory: ./infra
-      run: |
-        terraform plan -no-color -input=false -out=tfplan
-        terraform show -no-color tfplan > tfplan.txt
-      continue-on-error: false
+        terraform plan \
+          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          -out=tfplan
+        terraform apply -auto-approve tfplan > tfplan.txt
 
     - name: Terraform Plan Status
-      if: steps.plan.outcome == 'failure'
+      if: steps.setup-terraform.outcome == 'failure'
       run: exit 1
 
     - name: Terraform Apply
