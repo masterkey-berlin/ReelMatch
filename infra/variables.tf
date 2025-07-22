@@ -78,12 +78,6 @@ variable "ssh_key_name" {
   default     = "reelmatch-key"
 }
 
-variable "your_ip" {
-  description = "Your IP address for SSH access (CIDR format, e.g., 1.2.3.4/32)"
-  type        = string
-  default     = "0.0.0.0/0"  # WARNING: This allows SSH from anywhere. Change to your IP!
-}
-
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
