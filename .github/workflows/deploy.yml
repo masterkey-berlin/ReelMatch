@@ -2,8 +2,12 @@ name: Deploy to AWS EC2
 
 on:
   push:
+    branches: 
+      - main
+      - 'feature/**'  # Trigger auch für alle Feature-Branches
+  pull_request:
     branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # Manueller Trigger über die GitHub UI
 
 env:
   AWS_REGION: eu-central-1
