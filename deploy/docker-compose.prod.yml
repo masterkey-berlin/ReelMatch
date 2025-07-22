@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: ${DOCKERHUB_USERNAME}/reelmatch-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=/api
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - reelmatch-network
+
+  backend:
+    image: ${DOCKERHUB_USERNAME}/reelmatch-backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "3001:3001"
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - reelmatch-network
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reelmatch-network
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/letsencrypt
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    networks:
+      - reelmatch-network
+
+networks:
+  reelmatch-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
