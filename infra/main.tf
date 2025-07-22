@@ -1,164 +1,197 @@
+# --- Terraform Provider und Backend-Konfiguration ---
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 5.0"
     }
   }
+
+  # Für produktive Nutzung empfehlen wir ein S3-Backend,
+  # für einfache Tests kann es vorerst weggelassen werden
+  # backend "s3" {
+  #   # Wird in CI konfiguriert oder über -backend-config Parameter
+  # }
 }
 
 provider "aws" {
-  region = var.aws_region
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
+  region     = var.aws_region
+  # Credentials werden durch GitHub Actions bereitgestellt
 }
 
-# Security Group für EC2-Instanz
+# --- Datenquellen ---
+data "aws_availability_zones" "available" {}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["099720109477"] # Canonical
+}
+
+# --- Netzwerk ---
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+  tags = merge(var.tags, {
+    Name = "reelmatch-vpc"
+  })
+}
+
+resource "aws_subnet" "public" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available.names[0]
+  tags = merge(var.tags, {
+    Name = "reelmatch-public-subnet"
+  })
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+  tags = merge(var.tags, {
+    Name = "reelmatch-igw"
+  })
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+  tags = merge(var.tags, {
+    Name = "reelmatch-public-rt"
+  })
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+# --- Sicherheitsgruppe ---
 resource "aws_security_group" "reelmatch_sg" {
-  name        = "reelmatch-sg-${terraform.workspace}"
-  description = "Security group for ReelMatch application"
-  
-  # HTTP Zugriff
+  name        = "reelmatch-sg"
+  description = "Allow HTTP, HTTPS, and SSH"
+  vpc_id      = aws_vpc.main.id
+
+  # HTTP
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTP access"
   }
-  
-  # HTTPS Zugriff
+
+  # HTTPS
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS access"
   }
-  
-  # SSH Zugriff (nur von Ihrer IP)
+
+  # SSH
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = [var.your_ip]
-    description = "SSH access"
   }
-  
-  # Ausgehende Verbindungen erlauben
+
+  # Ausgehender Traffic
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "Outbound access"
   }
-  
-  tags = {
-    Name = "reelmatch-sg-${terraform.workspace}"
-  }
+
+  tags = merge(var.tags, {
+    Name = "reelmatch-sg"
+  })
 }
 
-# EC2-Instanz (vereinfacht ohne IAM)
+# --- SSH Key Pair ---
+resource "aws_key_pair" "deployer" {
+  key_name   = var.key_name
+  public_key = var.github_public_key
+}
+
+# --- EC2 Instanz ---
 resource "aws_instance" "reelmatch_server" {
-  ami           = var.ami_id
-  instance_type = var.instance_type
-  
-  # Security Groups
+  ami                    = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
+  instance_type          = var.instance_type
+  subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
+  key_name               = aws_key_pair.deployer.key_name
   
-  # Root Volume
   root_block_device {
-    volume_size = 30  # GB
-    volume_type = "gp3"
-    encrypted   = true
+    volume_size           = 30
+    volume_type           = "gp3"
+    encrypted             = true
     delete_on_termination = true
     
-    tags = {
-      Name = "reelmatch-root-volume-${terraform.workspace}"
-    }
+    tags = merge(var.tags, {
+      Name = "reelmatch-root-volume"
+    })
   }
-  
-  # Tags
-  tags = {
-    Name        = "reelmatch-server-${terraform.workspace}"
-    Environment = terraform.workspace
-    ManagedBy   = "terraform"
-  }
-  
-  # User Data für Initialisierung
+
   user_data = <<-EOF
               #!/bin/bash
-              set -e
-              
-              # System Updates
-              yum update -y
-              
-              # Docker Installation
-              amazon-linux-extras install -y docker
-              systemctl enable docker
-              systemctl start docker
-              usermod -aG docker ec2-user
-              
-              # Docker Compose Installation
-              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              chmod +x /usr/local/bin/docker-compose
-              
-              # Nginx Installation
-              amazon-linux-extras install -y nginx1
-              systemctl enable nginx
-              
-              # Verzeichnisse erstellen
-              mkdir -p /home/ec2-user/app/nginx
-              chown -R ec2-user:ec2-user /home/ec2-user/app
-              
-              # SSH-Schlüssel für GitHub Actions
-              mkdir -p /home/ec2-user/.ssh
-              echo "${var.github_public_key}" >> /home/ec2-user/.ssh/authorized_keys
-              chown -R ec2-user:ec2-user /home/ec2-user/.ssh
-              chmod 700 /home/ec2-user/.ssh
-              chmod 600 /home/ec2-user/.ssh/authorized_keys
-              
-              # Docker ohne sudo ausführen
-              usermod -aG docker ec2-user
-              
-              # Fertig
-              echo "Initialization complete!" > /home/ec2-user/init-complete.txt
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io docker-compose
+              sudo systemctl start docker
+              sudo systemctl enable docker
+              sudo usermod -aG docker ubuntu
+              sudo mkdir -p /home/ubuntu/reelmatch
+              sudo chown -R ubuntu:ubuntu /home/ubuntu/reelmatch
               EOF
-  
-  # Verbesserte Metriken
-  monitoring = true
+
+  tags = merge(var.tags, {
+    Name = "reelmatch-server"
+  })
 }
 
-# Elastic IP für die Instanz
+# --- Elastic IP für stabile öffentliche IP ---
 resource "aws_eip" "reelmatch_eip" {
+  domain = "vpc"
   instance = aws_instance.reelmatch_server.id
-  domain   = "vpc"
-  
-  tags = {
-    Name = "reelmatch-eip-${terraform.workspace}"
-  }
-  
-  depends_on = [aws_instance.reelmatch_server]
+  tags = merge(var.tags, {
+    Name = "reelmatch-eip"
+  })
 }
 
-# Outputs
+# --- DNS-Record (falls konfiguriert) ---
+resource "aws_route53_record" "reelmatch" {
+  count = var.domain_name != "" && var.hosted_zone_id != "" ? 1 : 0
+  
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+  ttl     = 300
+  records = [aws_eip.reelmatch_eip.public_ip]
+}
+
+# --- Outputs ---
 output "public_ip" {
-  description = "Public IP of the EC2 instance"
+  description = "Die öffentliche IP-Adresse der EC2-Instanz"
   value       = aws_eip.reelmatch_eip.public_ip
 }
 
 output "public_dns" {
-  description = "Public DNS of the EC2 instance"
-  value       = aws_eip.reelmatch_eip.public_dns
+  description = "Der öffentliche DNS-Name der EC2-Instanz"
+  value       = aws_instance.reelmatch_server.public_dns
 }
 
-output "ssh_connection" {
-  description = "SSH connection command"
-  value       = "ssh -i your-key.pem ec2-user@${aws_eip.reelmatch_eip.public_dns}"
-}
-
-output "application_url" {
-  description = "URL der Anwendung"
-  value       = "http://${aws_eip.reelmatch_eip.public_dns}"
+output "ssh_command" {
+  description = "SSH-Befehl zur Verbindung mit der EC2-Instanz"
+  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_eip.reelmatch_eip.public_ip}"
 }

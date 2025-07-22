@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "AWS region to deploy to"
+  description = "AWS region"
   type        = string
   default     = "eu-central-1"
 }
@@ -16,22 +16,8 @@ variable "aws_secret_key" {
   sensitive   = true
 }
 
-variable "dockerhub_username" {
-  description = "DockerHub username"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "dockerhub_token" {
-  description = "DockerHub token"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
 variable "ami_id" {
-  description = "AMI ID for the EC2 instance (Amazon Linux 2 by default)"
+  description = "AMI ID for EC2 instance"
   type        = string
   default     = "ami-0b7fd829e7758b06d" # Amazon Linux 2023 AMI (HVM), SSD Volume Type
 }

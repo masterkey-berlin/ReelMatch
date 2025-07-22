@@ -18,29 +18,31 @@ on:
 jobs:
   setup-infrastructure:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     env:
-      TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
-      TF_VAR_dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-      TF_VAR_aws_region: eu-central-1
-      TF_VAR_github_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0WGP1EZykEtv5YGC9nMiPFW3U3DmZNzKFO5nEu6uozEHh4jLZzPNHSrfFTuQ2GnRDSt+XvOOFQhJ/F2weLn9Xy+QQnZMS+cLR8hKNOZ8/KnY9DxHbkPDgJKMrpdIoXitofKWfk2QGp/QK7A+gQf7YCwzYnR/n6XdEV3Kgt5/1pC6yiPvlJWDDCHLPQFxDuynA/EM7kx4jImvR9RRIGxSWBRlegVA1dD8oaqYTEXNAUQlIg7cAGWAQXXqPyEm1yfIbgaGGqgQoNzUxUxCnwkUqp5PYNbLfGY5mysVOx0w0cZS9SYQ4QoK71LWkvNTn6n+X/MAO5FgzGbQpLjazGqKZ" 
+      TF_VAR_aws_region: "eu-central-1"
+      # SSH Public Key wird als Secret gespeichert und hier verwendet
+      TF_VAR_github_public_key: "${{ secrets.SSH_PUBLIC_KEY }}"
+      # IP für SSH-Zugriff (sollte für Produktionsumgebungen eingeschränkt werden)
+      TF_VAR_your_ip: "0.0.0.0/0"
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.0.0
+        terraform_version: "1.5.0"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-central-1
+        aws-region: "eu-central-1"
 
     - name: Terraform Init
       run: |
@@ -56,14 +58,16 @@ jobs:
       run: |
         cd infra
         terraform apply -auto-approve
+        
+        # Outputs in Environment-Variablen speichern
         echo "EC2_PUBLIC_IP=$(terraform output -raw public_ip)" >> $GITHUB_ENV
         echo "EC2_PUBLIC_DNS=$(terraform output -raw public_dns)" >> $GITHUB_ENV
         
     - name: Save outputs to file
       run: |
         mkdir -p ./outputs
-        echo "$(terraform -chdir=infra output -raw public_ip)" > ./outputs/ec2_public_ip.txt
-        echo "$(terraform -chdir=infra output -raw public_dns)" > ./outputs/ec2_public_dns.txt
+        echo "${{ env.EC2_PUBLIC_IP }}" > ./outputs/ec2_public_ip.txt
+        echo "${{ env.EC2_PUBLIC_DNS }}" > ./outputs/ec2_public_dns.txt
         
     - name: Upload outputs
       uses: actions/upload-artifact@v4
@@ -74,9 +78,8 @@ jobs:
   build-and-deploy:
     needs: setup-infrastructure
     runs-on: ubuntu-latest
-    env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    permissions:
+      contents: read
 
     steps:
     - name: Checkout code
@@ -94,23 +97,23 @@ jobs:
         echo "EC2_PUBLIC_DNS=$(cat ./outputs/ec2_public_dns.txt)" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
 
     - name: Login to DockerHub
-      uses: docker/login-action@v1
+      uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and push frontend Docker image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         context: ./frontend
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/reelmatch-frontend:latest
 
     - name: Build and push backend Docker image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         context: ./backend
         push: true
@@ -130,7 +133,7 @@ jobs:
         ssh-keyscan -H ${{ env.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
         
         # SSH-Verbindung testen
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ec2-user@${{ env.EC2_PUBLIC_IP }} "echo SSH-Verbindung erfolgreich!"
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ubuntu@${{ env.EC2_PUBLIC_IP }} "echo SSH-Verbindung erfolgreich!"
 
     - name: Prepare deployment files
       run: |
@@ -144,17 +147,19 @@ jobs:
     - name: Deploy to EC2
       run: |
         # Erstelle notwendige Verzeichnisse auf EC2
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ec2-user@${{ env.EC2_PUBLIC_IP }} "mkdir -p ~/reelmatch/nginx ~/reelmatch/certs"
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ubuntu@${{ env.EC2_PUBLIC_IP }} "mkdir -p ~/reelmatch/nginx ~/reelmatch/certs"
 
         # Kopiere Deployment-Dateien
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key -r ./deploy/* ec2-user@${{ env.EC2_PUBLIC_IP }}:~/reelmatch/
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ./scripts/deploy.sh ec2-user@${{ env.EC2_PUBLIC_IP }}:~/
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key -r ./deploy/* ubuntu@${{ env.EC2_PUBLIC_IP }}:~/reelmatch/
+        scp -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ./scripts/deploy.sh ubuntu@${{ env.EC2_PUBLIC_IP }}:~/
 
         # Führe Deployment-Skript aus
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ec2-user@${{ env.EC2_PUBLIC_IP }} "chmod +x ~/deploy.sh && ~/deploy.sh"
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key ubuntu@${{ env.EC2_PUBLIC_IP }} "chmod +x ~/deploy.sh && ~/deploy.sh"
 
     - name: Show Deployment URL
       run: |
         echo "Deployment abgeschlossen!"
-        echo "Frontend URL: http://${{ env.EC2_PUBLIC_IP }}"
-        echo "Backend API URL: http://${{ env.EC2_PUBLIC_IP }}/api"
+        echo "Anwendung ist verfügbar unter: http://${{ env.EC2_PUBLIC_IP }}"
+        if [ -f ./outputs/ec2_public_dns.txt ] && [ -n "$(cat ./outputs/ec2_public_dns.txt)" ]; then
+          echo "oder unter: http://$(cat ./outputs/ec2_public_dns.txt)"
+        fi
