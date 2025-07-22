@@ -1,0 +1,241 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
+
+# IAM Role für EC2-Instanz
+resource "aws_iam_role" "ec2_role" {
+  name = "reelmatch-ec2-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+# IAM Policy für ECR Zugriff
+resource "aws_iam_policy" "ecr_policy" {
+  name        = "reelmatch-ecr-policy"
+  description = "Policy to allow ECR access"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:GetRepositoryPolicy",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages",
+          "ecr:DescribeImages",
+          "ecr:BatchGetImage",
+          "ecr:GetLifecyclePolicy",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:ListTagsForResource",
+          "ecr:DescribeImageScanFindings"
+        ]
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+# IAM Role Policy Attachment
+resource "aws_iam_role_policy_attachment" "ecr_attachment" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = aws_iam_policy.ecr_policy.arn
+}
+
+# IAM Instance Profile
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "reelmatch-ec2-profile"
+  role = aws_iam_role.ec2_role.name
+}
+
+# Security Group für EC2-Instanz
+resource "aws_security_group" "reelmatch_sg" {
+  name        = "reelmatch-sg-${terraform.workspace}"
+  description = "Security group for ReelMatch application"
+  
+  # HTTP Zugriff
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP access"
+  }
+  
+  # HTTPS Zugriff
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS access"
+  }
+  
+  # SSH Zugriff (nur von Ihrer IP)
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.your_ip]
+    description = "SSH access"
+  }
+  
+  # Ausgehende Verbindungen erlauben
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Outbound access"
+  }
+  
+  tags = {
+    Name = "reelmatch-sg-${terraform.workspace}"
+  }
+}
+
+# EC2-Instanz
+resource "aws_instance" "reelmatch_server" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  
+  # IAM Instance Profile
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+  
+  # Security Groups
+  vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
+  
+  # Root Volume
+  root_block_device {
+    volume_size = 30  # GB
+    volume_type = "gp3"
+    encrypted   = true
+    
+    tags = {
+      Name = "reelmatch-root-volume-${terraform.workspace}"
+    }
+  }
+  
+  # Tags
+  tags = {
+    Name        = "reelmatch-server-${terraform.workspace}"
+    Environment = terraform.workspace
+    ManagedBy   = "terraform"
+  }
+  
+  # User Data für Initialisierung
+  user_data = <<-EOF
+              #!/bin/bash
+              set -e
+              
+              # System Updates
+              yum update -y
+              
+              # Docker Installation
+              amazon-linux-extras install -y docker
+              systemctl enable docker
+              systemctl start docker
+              usermod -aG docker ec2-user
+              
+              # Docker Compose Installation
+              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
+              
+              # Nginx Installation
+              amazon-linux-extras install -y nginx1
+              systemctl enable nginx
+              
+              # Verzeichnisse erstellen
+              mkdir -p /home/ec2-user/app/nginx
+              chown -R ec2-user:ec2-user /home/ec2-user/app
+              
+              # SSH-Schlüssel für GitHub Actions
+              mkdir -p /home/ec2-user/.ssh
+              echo "${var.github_public_key}" >> /home/ec2-user/.ssh/authorized_keys
+              chown -R ec2-user:ec2-user /home/ec2-user/.ssh
+              chmod 700 /home/ec2-user/.ssh
+              chmod 600 /home/ec2-user/.ssh/authorized_keys
+              
+              # Docker ohne sudo ausführen
+              usermod -aG docker ec2-user
+              
+              # Fertig
+              echo "Initialization complete!" > /home/ec2-user/init-complete.txt
+              EOF
+  
+  # Verbesserte Metriken
+  monitoring = true
+  
+  # Root-Device löschen beim Terminieren
+  root_block_device {
+    delete_on_termination = true
+  }
+}
+
+# Elastic IP für die Instanz
+resource "aws_eip" "reelmatch_eip" {
+  instance = aws_instance.reelmatch_server.id
+  vpc      = true
+  
+  tags = {
+    Name = "reelmatch-eip-${terraform.workspace}"
+  }
+  
+  depends_on = [aws_instance.reelmatch_server]
+}
+
+# DNS Eintrag (falls eine Domain verwendet wird)
+resource "aws_route53_record" "www" {
+  count   = var.domain_name != "" ? 1 : 0
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+  ttl     = 300
+  records = [aws_eip.reelmatch_eip.public_ip]
+}
+
+# Outputs
+output "instance_public_ip" {
+  description = "Public IP of the EC2 instance"
+  value       = aws_eip.reelmatch_eip.public_ip
+}
+
+output "instance_public_dns" {
+  description = "Public DNS of the EC2 instance"
+  value       = aws_eip.reelmatch_eip.public_dns
+}
+
+output "ssh_connection" {
+  description = "SSH connection command"
+  value       = "ssh -i your-key.pem ec2-user@${aws_eip.reelmatch_eip.public_dns}"
+}
+
+output "application_url" {
+  description = "URL der Anwendung"
+  value       = "http://${aws_eip.reelmatch_eip.public_dns}"
+}

@@ -17,8 +17,51 @@ build/
 .env.test.local
 .env.production.local
 
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+.terraform/
+
+# Terraform Provider Cache
+.terraform/providers/
+.terraform/plugins/
+
+# Terraform Plan Outputs
+*.tfplan
+*.plan
+
+# Lokale Terraform-Variablendateien
+*.tfvars
+*.tfvars.json
+
+# Terraform Override Files
+*_override.tf
+*_override.tf.json
+
+# Terraform Crash Logs
+crash.log
+crash.*.log
+
 # Betriebssystem-spezifisch
 .DS_Store
 Thumbs.db
 
+# Lokale Entwicklungsumgebung
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Lokale Terraform Backend-Konfiguration
+.terraform-backend
+
+# Lokale SSH-Schlüssel
+*.pem
+*.p12
+*.key
+*.crt
 
