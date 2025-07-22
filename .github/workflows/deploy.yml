@@ -66,7 +66,7 @@ jobs:
         echo "$(terraform -chdir=infra output -raw public_dns)" > ./outputs/ec2_public_dns.txt
         
     - name: Upload outputs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: terraform-outputs
         path: ./outputs/
@@ -83,7 +83,7 @@ jobs:
       uses: actions/checkout@v3
       
     - name: Download Terraform outputs
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: terraform-outputs
         path: ./outputs
