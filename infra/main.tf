@@ -84,7 +84,7 @@ resource "aws_instance" "reelmatch_server" {
 
 # Security Group
 resource "aws_security_group" "reelmatch_sg" {
-  name        = "reelmatch-sg"
+  name        = "reelmatch-sg-2"   # <--- Neuen Namen vergeben!
   description = "Allow HTTP, HTTPS, and SSH"
   vpc_id      = data.aws_vpc.existing.id
 
