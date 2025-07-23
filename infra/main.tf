@@ -23,11 +23,25 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+# Default-VPC verwenden
+data "aws_vpc" "existing" {
+  default = true
+}
+
+# Ein Subnetz der Default-VPC auswählen
+data "aws_subnet_ids" "default" {
+  vpc_id = data.aws_vpc.existing.id
+}
+
+data "aws_subnet" "default" {
+  id = data.aws_subnet_ids.default.ids[0]
+}
+
 # EC2 Instance
 resource "aws_instance" "reelmatch_server" {
   ami           = "ami-02003f9f0fde924ea" // Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, from eu-central-1
   instance_type          = "t2.large"
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = data.aws_subnet.default.id
   vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
   key_name               = "reel-match-key"   # <-- Hier direkt den Namen eintragen!
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
@@ -65,75 +79,11 @@ resource "aws_instance" "reelmatch_server" {
   }
 }
 
-# VPC
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = {
-    Name        = "reelmatch-vpc"
-    Project     = "ReelMatch"
-    Environment = "production"
-    ManagedBy   = "terraform"
-  }
-}
-
-# Internet Gateway
-resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name        = "reelmatch-igw"
-    Project     = "ReelMatch"
-    Environment = "production"
-    ManagedBy   = "terraform"
-  }
-}
-
-# Public Subnet
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = data.aws_availability_zones.available.names[0]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name        = "reelmatch-public-subnet"
-    Project     = "ReelMatch"
-    Environment = "production"
-    ManagedBy   = "terraform"
-  }
-}
-
-# Route Table
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
-  tags = {
-    Name        = "reelmatch-public-rt"
-    Project     = "ReelMatch"
-    Environment = "production"
-    ManagedBy   = "terraform"
-  }
-}
-
-# Route Table Association
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
-}
-
 # Security Group
 resource "aws_security_group" "reelmatch_sg" {
   name        = "reelmatch-sg"
   description = "Allow HTTP, HTTPS, and SSH"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = data.aws_vpc.existing.id
 
   ingress {
     from_port   = 80
