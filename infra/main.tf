@@ -222,11 +222,11 @@ resource "aws_iam_role_policy" "ec2_s3_policy" {
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "reelmatch-ec2-profile-2" # <--- Auch hier neuen Namen vergeben
+  name = "reelmatch-ec2-profile-3" # <--- Noch neuerer Name!
   role = aws_iam_role.ec2_s3_role.name
 
   tags = {
-    Name        = "reelmatch-ec2-profile-2"
+    Name        = "reelmatch-ec2-profile-3"
     Project     = "ReelMatch"
     Environment = "production"
     ManagedBy   = "terraform"
