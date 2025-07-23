@@ -263,3 +263,9 @@ output "instance_storage" {
   description = "EC2 instance storage information"
   value       = "30GB GP3 SSD (encrypted) - Videos stored in S3"
 }
+
+resource "null_resource" "whoami" {
+  provisioner "local-exec" {
+    command = "aws sts get-caller-identity"
+  }
+}
