@@ -1,0 +1,209 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ReelMatch Infrastruktur (EC2, S3, IAM, Security Group)
+
+Parameters:
+  KeyName:
+    Description: reel-match-key
+    Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+  ReelMatchVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: reelmatch-vpc
+
+  ReelMatchSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ReelMatchVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: reelmatch-subnet
+
+  ReelMatchInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: reelmatch-igw
+
+  ReelMatchVPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref ReelMatchVPC
+      InternetGatewayId: !Ref ReelMatchInternetGateway
+
+  ReelMatchRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref ReelMatchVPC
+      Tags:
+        - Key: Name
+          Value: reelmatch-rt
+
+  ReelMatchRoute:
+    Type: AWS::EC2::Route
+    DependsOn: ReelMatchVPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref ReelMatchRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ReelMatchInternetGateway
+
+  ReelMatchSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref ReelMatchSubnet
+      RouteTableId: !Ref ReelMatchRouteTable
+
+  ReelMatchS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub reelmatch-storage-${AWS::AccountId}-${AWS::Region}
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: reelmatch-storage
+        - Key: Project
+          Value: ReelMatch
+        - Key: Environment
+          Value: production
+        - Key: ManagedBy
+          Value: cloudformation
+
+  ReelMatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: reelmatch-ec2-s3-role-cf
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: reelmatch-ec2-s3-policy-cf
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt ReelMatchS3Bucket.Arn
+                  - !Sub "${ReelMatchS3Bucket.Arn}/*"
+      Tags:
+        - Key: Name
+          Value: reelmatch-ec2-s3-role-cf
+        - Key: Project
+          Value: ReelMatch
+        - Key: Environment
+          Value: production
+        - Key: ManagedBy
+          Value: cloudformation
+
+  ReelMatchInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: reelmatch-ec2-profile-cf
+      Roles:
+        - !Ref ReelMatchRole
+
+  ReelMatchSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: reelmatch-sg-cf
+      GroupDescription: Allow HTTP, HTTPS, and SSH
+      VpcId: !Ref ReelMatchVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: reelmatch-sg-cf
+        - Key: Project
+          Value: ReelMatch
+        - Key: Environment
+          Value: production
+        - Key: ManagedBy
+          Value: cloudformation
+
+  ReelMatchEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-02003f9f0fde924ea
+      InstanceType: t2.large
+      SubnetId: !Ref ReelMatchSubnet
+      SecurityGroupIds:
+        - !Ref ReelMatchSecurityGroup
+      KeyName: !Ref KeyName
+      IamInstanceProfile: !Ref ReelMatchInstanceProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 30
+            VolumeType: gp3
+            Encrypted: true
+            DeleteOnTermination: true
+      Tags:
+        - Key: Name
+          Value: reelmatch-server
+        - Key: Project
+          Value: ReelMatch
+        - Key: Environment
+          Value: production
+        - Key: ManagedBy
+          Value: cloudformation
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo apt-get update -y
+          sudo apt-get install -y docker.io docker-compose
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          sudo usermod -aG docker ubuntu
+          sudo mkdir -p /home/ubuntu/reelmatch
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/reelmatch
+
+Outputs:
+  InstancePublicIp:
+    Description: Public IP address of the EC2 instance
+    Value: !GetAtt ReelMatchEC2.PublicIp
+  S3BucketName:
+    Description: Name of the S3 bucket for ReelMatch storage
+    Value: !Ref ReelMatchS3Bucket
