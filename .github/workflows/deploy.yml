@@ -27,10 +27,10 @@ jobs:
     env:
       TF_VAR_aws_region: eu-central-1
       TF_VAR_your_ip: 0.0.0.0/0
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || '' }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || '' }}
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || '' }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN || '' }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     steps:
     - name: Checkout code
@@ -45,8 +45,8 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID || '' }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || '' }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.TF_VAR_aws_region }}
 
     # SSH-Public-Key aus GitHub Secrets als Umgebungsvariable setzen
@@ -168,7 +168,7 @@ jobs:
 
     - name: Set up SSH
       env:
-        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY || '' }}
+        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         TARGET_IP: ${{ env.EC2_PUBLIC_IP || 'localhost' }}
       run: |
         if [ -z "$SSH_KEY" ]; then

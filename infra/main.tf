@@ -26,18 +26,18 @@ data "aws_availability_zones" "available" {
 # EC2 Instance
 resource "aws_instance" "reelmatch_server" {
   ami           = "ami-02003f9f0fde924ea" // Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, from eu-central-1
-  instance_type          = "t2.large"  # Kostengünstiger als t3.medium
+  instance_type          = "t2.large"
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
-  key_name               = aws_key_pair.deployer.key_name
+  key_name               = "reel-match-key"   # <-- Hier direkt den Namen eintragen!
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-  
+
   root_block_device {
-    volume_size           = 30  # 30GB reichen aus - Videos werden in S3 gespeichert
+    volume_size           = 30
     volume_type           = "gp3"
     encrypted             = true
     delete_on_termination = true
-    
+
     tags = {
       Name        = "reelmatch-root-volume"
       Project     = "ReelMatch"
@@ -170,21 +170,6 @@ resource "aws_security_group" "reelmatch_sg" {
     ManagedBy   = "terraform"
   }
 }
-
-# Key Pair
-resource "aws_key_pair" "deployer" {
-  key_name   = "reelmatch-key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZ/0HxsneheYiqZWQNpDNyALk9XEGb30hGJnsOF1rN1HOZGIT4NiXYwgQet49XkIUjZX5I8tIUSyDyNDz95cDq02oPXhw8UqtaO3wJF5/QMowCD5+C3SKcV1KraSQW/B1uzNkFgNm2ULsARc+EQOZ14Z75LcWW5+pGqVDuhLtmmmWC6E/U/L2ClVrmYOywi93gRNBysd0ap9DsIm6Yx2hiyFOu4yNvSQADA+Z/DToNkex9o4MrrRQjhG8GDTosigIelfrdTEK4QiJqZ7HWratFpjynuEftE/mCz1EFcgopit75sVkry5EgAffZjUs5yWg/S7Vny472oLvSQLaFs/XrOOaQvkIQ2FFfC8WjcfXXDs2zFkFFTLzb2FzhNynXr8EC6szmeVVgBFCn428AYNh/NhXdJ8umxdsZlFiSy7pwQV9dfFbyYcvSSON2hzmY3rhuzT+CxxxnGEbnTl2wvX0WFo9yrfTwuE0GzlWfRROgHqMKmnFkXx95CxUxOXsLvLR3onNzGeyjZ3ZTTHBEzz4+VV1batflm7uaEq1UCJWVLeSXnADZHclcPl0ghzPPGN8sdH2xl0UBMpCA2UE/31FS9Cy3Pp265cBdKphUiQEi7sLxkMIlqoSQVqYoOUQDG9PRGqAIaOhvO9t8jGQoEhWB7scAFi+URIxRUvE4AbVPNQ== reelmatch@reelmatch"
-
-  tags = {
-    Name        = "reelmatch-key-pair"
-    Project     = "ReelMatch"
-    Environment = "production"
-    ManagedBy   = "terraform"
-  }
-}
-
-
 
 # Keine Elastic IP - verwende automatische öffentliche IP (kostenlos)
 
