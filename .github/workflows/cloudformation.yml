@@ -2,6 +2,9 @@ name: Deploy ReelMatch CloudFormation
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feature/clouformation
 
 jobs:
   deploy:
