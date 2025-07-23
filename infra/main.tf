@@ -174,7 +174,7 @@ resource "aws_s3_bucket_public_access_block" "reelmatch_storage_pab" {
 
 # IAM-Rolle für EC2-Instanz (für S3-Zugriff)
 resource "aws_iam_role" "ec2_s3_role" {
-  name = "reelmatch-ec2-s3-role"
+  name = "reelmatch-ec2-s3-role-2" # <--- Hier neuen Namen vergeben
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -190,16 +190,15 @@ resource "aws_iam_role" "ec2_s3_role" {
   })
 
   tags = {
-    Name        = "reelmatch-ec2-s3-role"
+    Name        = "reelmatch-ec2-s3-role-2"
     Project     = "ReelMatch"
     Environment = "production"
     ManagedBy   = "terraform"
   }
 }
 
-# IAM-Policy für S3-Zugriff
 resource "aws_iam_role_policy" "ec2_s3_policy" {
-  name = "reelmatch-ec2-s3-policy"
+  name = "reelmatch-ec2-s3-policy-2" # <--- Auch hier neuen Namen vergeben
   role = aws_iam_role.ec2_s3_role.id
 
   policy = jsonencode({
@@ -222,13 +221,12 @@ resource "aws_iam_role_policy" "ec2_s3_policy" {
   })
 }
 
-# IAM Instance Profile
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "reelmatch-ec2-profile"
+  name = "reelmatch-ec2-profile-2" # <--- Auch hier neuen Namen vergeben
   role = aws_iam_role.ec2_s3_role.name
 
   tags = {
-    Name        = "reelmatch-ec2-profile"
+    Name        = "reelmatch-ec2-profile-2"
     Project     = "ReelMatch"
     Environment = "production"
     ManagedBy   = "terraform"
