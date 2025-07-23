@@ -29,12 +29,15 @@ data "aws_vpc" "existing" {
 }
 
 # Ein Subnetz der Default-VPC auswählen
-data "aws_subnet_ids" "default" {
-  vpc_id = data.aws_vpc.existing.id
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.existing.id]
+  }
 }
 
 data "aws_subnet" "default" {
-  id = data.aws_subnet_ids.default.ids[0]
+  id = data.aws_subnets.default.ids[0]
 }
 
 # EC2 Instance
