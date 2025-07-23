@@ -26,5 +26,6 @@ Thumbs.db
 terraform.tfstate
 terraform.tfstate.backup
 .terraform
+infra/terraform.tfvars
 
 
