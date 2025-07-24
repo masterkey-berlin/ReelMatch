@@ -249,6 +249,21 @@ output "s3_bucket_arn" {
   value       = aws_s3_bucket.reelmatch_storage.arn
 }
 
+output "subnet_id" {
+  description = "ID des Subnets für die EC2-Instanz"
+  value       = data.aws_subnet.default.id
+}
+
+output "security_group_id" {
+  description = "ID der Security Group für die EC2-Instanz"
+  value       = aws_security_group.reelmatch_sg.id
+}
+
+output "instance_profile_name" {
+  description = "Name des IAM Instance Profiles für die EC2-Instanz"
+  value       = aws_iam_instance_profile.ec2_profile.name
+}
+
 # output "instance_storage" {
 #   description = "EC2 instance storage information"
 #   value       = "30GB GP3 SSD (encrypted) - Videos stored in S3"
