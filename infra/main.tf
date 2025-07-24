@@ -41,46 +41,46 @@ data "aws_subnet" "default" {
 }
 
 # EC2 Instance
-resource "aws_instance" "reelmatch_server" {
-  ami           = "ami-02003f9f0fde924ea" // Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, from eu-central-1
-  instance_type          = "t2.large"
-  subnet_id              = data.aws_subnet.default.id
-  vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
-  key_name               = "reel-match-key"   # <-- Hier direkt den Namen eintragen!
-  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
-
-  root_block_device {
-    volume_size           = 30
-    volume_type           = "gp3"
-    encrypted             = true
-    delete_on_termination = true
-
-    tags = {
-      Name        = "reelmatch-root-volume"
-      Project     = "ReelMatch"
-      Environment = "production"
-      ManagedBy   = "terraform"
-    }
-  }
-
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io docker-compose
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker ubuntu
-              sudo mkdir -p /home/ubuntu/reelmatch
-              sudo chown -R ubuntu:ubuntu /home/ubuntu/reelmatch
-              EOF
-
-  tags = {
-    Name        = "reelmatch-server"
-    Project     = "ReelMatch"
-    Environment = "production"
-    ManagedBy   = "terraform"
-  }
-}
+# resource "aws_instance" "reelmatch_server" {
+#   ami           = "ami-02003f9f0fde924ea" // Ubuntu Server 20.04 LTS (HVM), SSD Volume Type, from eu-central-1
+#   instance_type          = "t2.large"
+#   subnet_id              = data.aws_subnet.default.id
+#   vpc_security_group_ids = [aws_security_group.reelmatch_sg.id]
+#   key_name               = "reel-match-key"   # <-- Hier direkt den Namen eintragen!
+#   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
+# 
+#   root_block_device {
+#     volume_size           = 30
+#     volume_type           = "gp3"
+#     encrypted             = true
+#     delete_on_termination = true
+# 
+#     tags = {
+#       Name        = "reelmatch-root-volume"
+#       Project     = "ReelMatch"
+#       Environment = "production"
+#       ManagedBy   = "terraform"
+#     }
+#   }
+# 
+#   user_data = <<-EOF
+#               #!/bin/bash
+#               sudo apt-get update -y
+#               sudo apt-get install -y docker.io docker-compose
+#               sudo systemctl start docker
+#               sudo systemctl enable docker
+#               sudo usermod -aG docker ubuntu
+#               sudo mkdir -p /home/ubuntu/reelmatch
+#               sudo chown -R ubuntu:ubuntu /home/ubuntu/reelmatch
+#               EOF
+# 
+#   tags = {
+#     Name        = "reelmatch-server"
+#     Project     = "ReelMatch"
+#     Environment = "production"
+#     ManagedBy   = "terraform"
+#   }
+# }
 
 # Security Group
 resource "aws_security_group" "reelmatch_sg" {
@@ -234,20 +234,10 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 }
 
 # Outputs
-output "public_ip" {
-  description = "Public IP address of the EC2 instance"
-  value       = aws_instance.reelmatch_server.public_ip
-}
-
-output "public_dns" {
-  description = "Public DNS name of the EC2 instance"
-  value       = aws_instance.reelmatch_server.public_dns
-}
-
-output "ssh_command" {
-  description = "SSH command to connect to the instance"
-  value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_instance.reelmatch_server.public_ip}"
-}
+# output "ssh_command" {
+#   description = "SSH command to connect to the instance"
+#   value       = "ssh -i ~/.ssh/id_rsa ubuntu@${aws_instance.reelmatch_server.public_ip}"
+# }
 
 output "s3_bucket_name" {
   description = "Name of the S3 bucket for ReelMatch storage"
@@ -259,10 +249,10 @@ output "s3_bucket_arn" {
   value       = aws_s3_bucket.reelmatch_storage.arn
 }
 
-output "instance_storage" {
-  description = "EC2 instance storage information"
-  value       = "30GB GP3 SSD (encrypted) - Videos stored in S3"
-}
+# output "instance_storage" {
+#   description = "EC2 instance storage information"
+#   value       = "30GB GP3 SSD (encrypted) - Videos stored in S3"
+# }
 
 resource "null_resource" "whoami" {
   provisioner "local-exec" {

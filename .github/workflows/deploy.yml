@@ -81,21 +81,19 @@ jobs:
         terraform output
         
         # Outputs in Environment-Variablen und Dateien speichern
-        echo "Speichere Outputs..."
         mkdir -p ../outputs
         
-        # public_ip in Variable und Datei speichern
-        PUBLIC_IP=$(terraform output -raw public_ip || echo "keine_ip")
-        echo "Erkannte IP: $PUBLIC_IP"
-        echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-        echo "$PUBLIC_IP" > ../outputs/ec2_public_ip.txt
+        # Die folgenden Zeilen sind auskommentiert, da keine EC2-Outputs mehr vorhanden sind
+        # PUBLIC_IP=$(terraform output -raw public_ip || echo "keine_ip")
+        # echo "Erkannte IP: $PUBLIC_IP"
+        # echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+        # echo "$PUBLIC_IP" > ../outputs/ec2_public_ip.txt
         
-        # public_dns in Variable und Datei speichern
-        PUBLIC_DNS=$(terraform output -raw public_dns || echo "kein_dns")
-        echo "Erkannte DNS: $PUBLIC_DNS"
-        echo "EC2_PUBLIC_DNS=$PUBLIC_DNS" >> $GITHUB_ENV
-        echo "$PUBLIC_DNS" > ../outputs/ec2_public_dns.txt
-        
+        # PUBLIC_DNS=$(terraform output -raw public_dns || echo "kein_dns")
+        # echo "Erkannte DNS: $PUBLIC_DNS"
+        # echo "EC2_PUBLIC_DNS=$PUBLIC_DNS" >> $GITHUB_ENV
+        # echo "$PUBLIC_DNS" > ../outputs/ec2_public_dns.txt
+
     - name: Upload outputs
       uses: actions/upload-artifact@v4
       with:
@@ -124,131 +122,35 @@ jobs:
         # Debug-Informationen ausgeben
         ls -la ./outputs
         
-        # Prüfen ob die Dateien existieren und nicht leer sind
-        if [ -s "./outputs/ec2_public_ip.txt" ]; then
-          PUBLIC_IP=$(cat ./outputs/ec2_public_ip.txt)
-          echo "Gefundene IP: $PUBLIC_IP"
-          echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-        else
-          echo "WARNUNG: IP-Datei fehlt oder ist leer! Setze Default-Wert."
-          echo "EC2_PUBLIC_IP=keine_ip" >> $GITHUB_ENV
-        fi
-        
-        if [ -s "./outputs/ec2_public_dns.txt" ]; then
-          PUBLIC_DNS=$(cat ./outputs/ec2_public_dns.txt)
-          echo "Gefundener DNS: $PUBLIC_DNS"
-          echo "EC2_PUBLIC_DNS=$PUBLIC_DNS" >> $GITHUB_ENV
-        else
-          echo "WARNUNG: DNS-Datei fehlt oder ist leer! Setze Default-Wert."
-          echo "EC2_PUBLIC_DNS=kein_dns" >> $GITHUB_ENV
-        fi
+        # Die folgenden Zeilen sind auskommentiert, da keine EC2-Outputs mehr vorhanden sind
+        # if [ -s "./outputs/ec2_public_ip.txt" ]; then
+        #   PUBLIC_IP=$(cat ./outputs/ec2_public_ip.txt)
+        #   echo "Gefundene IP: $PUBLIC_IP"
+        #   echo "EC2_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+        # else
+        #   echo "WARNUNG: IP-Datei fehlt oder ist leer! Setze Default-Wert."
+        #   echo "EC2_PUBLIC_IP=keine_ip" >> $GITHUB_ENV
+        # fi
+        # 
+        # if [ -s "./outputs/ec2_public_dns.txt" ]; then
+        #   PUBLIC_DNS=$(cat ./outputs/ec2_public_dns.txt)
+        #   echo "Gefundener DNS: $PUBLIC_DNS"
+        #   echo "EC2_PUBLIC_DNS=$PUBLIC_DNS" >> $GITHUB_ENV
+        # else
+        #   echo "WARNUNG: DNS-Datei fehlt oder ist leer! Setze Default-Wert."
+        #   echo "EC2_PUBLIC_DNS=kein_dns" >> $GITHUB_ENV
+        # fi
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+    # Die folgenden Schritte können auskommentiert oder entfernt werden,
+    # da sie auf die EC2-Instanz zugreifen wollen:
+    # - Set up SSH
+    # - Deploy to EC2
+    # - Show Deployment URL
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME || 'username' }}
-        password: ${{ secrets.DOCKERHUB_TOKEN || 'token' }}
-
-    - name: Build and push frontend Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./frontend
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME || 'reelmatch' }}/reelmatch-frontend:latest
-
-    - name: Build and push backend Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./backend
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME || 'reelmatch' }}/reelmatch-backend:latest
-
-    - name: Set up SSH
-      env:
-        SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        TARGET_IP: ${{ env.EC2_PUBLIC_IP || 'localhost' }}
-      run: |
-        if [ -z "$SSH_KEY" ]; then
-          echo "WARNUNG: SSH_PRIVATE_KEY ist nicht gesetzt! SSH wird möglicherweise fehlschlagen."
-          echo "Dummy-Key für CI" > ~/.ssh/id_rsa
-        else
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-        fi
-        
-        if [ "$TARGET_IP" = "keine_ip" ] || [ "$TARGET_IP" = "localhost" ]; then
-          echo "WARNUNG: Keine gültige Ziel-IP gefunden! SSH wird wahrscheinlich fehlschlagen."
-        else
-          echo "Verwende Ziel-IP: $TARGET_IP"
-          ssh-keyscan -t rsa $TARGET_IP >> ~/.ssh/known_hosts || echo "Keyscan fehlgeschlagen, aber fortfahren"
-        fi
-        
-        # Warten, bis SSH verfügbar ist (max. 5 Minuten)
-        echo "Warte auf SSH-Verfügbarkeit..."
-        if [ "$TARGET_IP" = "keine_ip" ] || [ "$TARGET_IP" = "localhost" ]; then
-          echo "Überspringe SSH-Verbindungstest wegen ungültiger Ziel-IP"
-        else
-          timeout 300 bash -c "until nc -z $TARGET_IP 22 2>/dev/null; do sleep 5; echo \"Warte auf SSH...\"; done" || echo "Timeout beim Warten auf SSH-Verfügbarkeit"
-          
-          # SSH-Verbindung testen
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$TARGET_IP "echo SSH-Verbindung erfolgreich!" || echo "SSH-Verbindungstest fehlgeschlagen, versuche trotzdem fortzufahren"  
-        fi
-
-    - name: Prepare deployment files
-      run: |
-        # Erstelle Nginx-Konfigurationsdatei
-        mkdir -p ./deploy/nginx
-        cp ./nginx/nginx.conf ./deploy/nginx/
-        
-        # Kopiere docker-compose.prod.yml
-        cp docker-compose.prod.yml ./deploy/
-
-    - name: Deploy to EC2
-      env:
-        TARGET_IP: ${{ env.EC2_PUBLIC_IP || 'localhost' }}
-      run: |
-        # Prüfe, ob wir eine gültige IP haben
-        if [ "$TARGET_IP" = "keine_ip" ] || [ "$TARGET_IP" = "localhost" ]; then
-          echo "WARNUNG: Keine gültige Ziel-IP für Deployment gefunden. Deployment wird übersprungen."
-          exit 0
-        fi
-        
-        # Erstelle notwendige Verzeichnisse auf EC2
-        echo "Erstelle Verzeichnisse auf $TARGET_IP..."
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$TARGET_IP "mkdir -p ~/reelmatch/nginx ~/reelmatch/certs" || echo "Konnte Verzeichnisse nicht erstellen, fahre trotzdem fort"
-
-        # Kopiere Deployment-Dateien
-        echo "Kopiere Deployment-Dateien..."
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./deploy/* ubuntu@$TARGET_IP:~/reelmatch/ || echo "Konnte Deployment-Dateien nicht kopieren"
-        
-        if [ -f "./scripts/deploy.sh" ]; then
-          echo "Kopiere Deployment-Skript..."
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ./scripts/deploy.sh ubuntu@$TARGET_IP:~/ || echo "Konnte Deployment-Skript nicht kopieren"
-
-          # Führe Deployment-Skript aus
-          echo "Führe Deployment-Skript aus..."
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$TARGET_IP "chmod +x ~/deploy.sh && ~/deploy.sh" || echo "Fehler beim Ausführen des Deployment-Skripts"
-        else
-          echo "WARNUNG: Deployment-Skript nicht gefunden. Stelle sicher, dass ./scripts/deploy.sh existiert"
-        fi
-
-    - name: Show Deployment URL
-      env:
-        TARGET_IP: ${{ env.EC2_PUBLIC_IP || 'localhost' }}
-      run: |
-        echo "Deployment-Prozess abgeschlossen."
-        
-        if [ "$TARGET_IP" != "keine_ip" ] && [ "$TARGET_IP" != "localhost" ]; then
-          echo "Anwendung ist verfügbar unter: http://$TARGET_IP"
-        fi
-        
-        if [ -f "./outputs/ec2_public_dns.txt" ]; then
-          PUBLIC_DNS=$(cat ./outputs/ec2_public_dns.txt)
-          if [ -n "$PUBLIC_DNS" ] && [ "$PUBLIC_DNS" != "kein_dns" ]; then
-            echo "oder unter: http://$PUBLIC_DNS"
-          fi
-        fi
+    # Beispiel:
+    # - name: Set up SSH
+    #   ...
+    # - name: Deploy to EC2
+    #   ...
+    # - name: Show Deployment URL
+    #   ...
