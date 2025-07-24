@@ -84,7 +84,7 @@ data "aws_subnet" "default" {
 
 # Security Group
 resource "aws_security_group" "reelmatch_sg" {
-  name        = "reelmatch-sg-2"   # <--- Neuen Namen vergeben!
+  name        = "reelmatch-sg-3"   # <--- Hier neuen Namen vergeben!
   description = "Allow HTTP, HTTPS, and SSH"
   vpc_id      = data.aws_vpc.existing.id
 
