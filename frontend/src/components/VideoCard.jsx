@@ -155,7 +155,7 @@ const VideoCard = ({
             onPlay={() => setShowThumbnail(false)}
             onLoadedMetadata={() => setShowThumbnail(false)}
           >
-            <source src={`http://localhost:3001/${(video.path || video.video_path || '').replace(/\\/g, '/')}`} type="video/mp4" />
+            <source src={`/${(video.path || video.video_path || '').replace(/\\/g, '/')}`} type="video/mp4" />
             Dein Browser unterstützt keine Videos.
           </video>
           {showThumbnail && (

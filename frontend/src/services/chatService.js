@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // API-URL aus der Umgebung oder Fallback verwenden
 // Frontend läuft auf Port 8080 mit Nginx-Proxy für /api/ -> Backend
-const API_URL = window.env?.REACT_APP_API_URL || 'http://localhost:8080/api/v1';
+const API_URL = window.env?.REACT_APP_API_URL || '/api/v1';
 
 // Hilfsfunktion, um den Auth-Header zu erstellen
 const getAuthHeader = () => {

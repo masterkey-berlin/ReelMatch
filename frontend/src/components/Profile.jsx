@@ -73,7 +73,7 @@ function Profile() {
           <div className={styles.videoWrapper}>
             {profile.profile_video_path ? (
               <video key={profile.profile_video_path} className={styles.profileVideo} controls>
-                <source src={`http://localhost:3001/${profile.profile_video_path.replace(/\\/g, '/')}`} type="video/mp4" />
+                <source src={`/${profile.profile_video_path.replace(/\\/g, '/')}`} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             ) : (

@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
   // Login Funktion
   const login = async (username, password) => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/auth/login', {
+      const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   // Register Funktion
   const register = async (username, email, password) => {
     try {
-      const response = await fetch('http://localhost:3001/api/v1/auth/register', {
+      const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

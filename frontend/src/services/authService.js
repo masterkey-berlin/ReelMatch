@@ -1,7 +1,7 @@
 // authService.js - Zentraler Service für Authentifizierungsfunktionen
 import apiClient from './api';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
 class AuthService {
   // Login-Funktion

@@ -33,58 +33,58 @@ const SwipeInterface = ({ onMatch }) => {
         // Wenn kein API-Endpunkt oder keine Daten, verwenden wir Mock-Daten
         console.log('💡 Using mock swipe data');
         // Wir verwenden IDs, die nicht mit der authentifizierten Benutzer-ID kollidieren
-        setUsers([
-    {
-      id: 3,
-      username: 'sarah_cool',
-      bio: 'Liebe Comedy und Action-Filme! ',
-      age: 25,
-      introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
-      recentPosts: [
-        {
-          video: '/uploads/postVideo-1752439291512-790499454.mp4',
-          room: 'Comedy-Klassiker',
-          timestamp: '2 Stunden her'
-        }
-      ],
-      interests: ['Comedy', 'Action', 'Reisen']
-    },
-    {
-      id: 3,
-      username: 'mike_movie',
-      bio: 'Sci-Fi Fan und Hobby-Regisseur ',
-      age: 28,
-      introVideo: '/uploads/introVideo-1752482317936-170159145.mp4',
-      recentPosts: [
-        {
-          video: '/uploads/postVideo-1752439580980-399548449.mp4',
-          room: 'Sci-Fi Universum',
-          timestamp: '1 Tag her'
-        },
-        {
-          video: '/uploads/postVideo-1752482072458-731791990.mp4',
-          room: 'Filmproduktion',
-          timestamp: '3 Tage her'
-        }
-      ],
-      interests: ['Sci-Fi', 'Filmproduktion', 'Gaming']
-    },
-    {
-      id: 4,
-      username: 'anna_artist',
-      bio: 'Indie-Filme und Kunsthaus-Kino ',
-      age: 24,
-      introVideo: '/uploads/introVideo-1752439602224-521957059.mp4',
-      recentPosts: [
-        {
-          video: '/uploads/postVideo-1752482249594-799512553.mp4',
-          room: 'Indie & Arthouse',
-          timestamp: '5 Stunden her'
-        }
-      ],
-      interests: ['Indie-Filme', 'Kunst', 'Fotografie']
-    }
-  ]);
+  setUsers([
+      {
+    id: 1,
+    username: 'sarah_cool',
+    bio: 'Liebe Comedy und Action-Filme!',
+    age: 25,
+    introVideo: '/uploads/introVideo-1753378520383-338249915.mp4',
+    recentPosts: [
+      {
+        video: '/uploads/postVideo-1753378550691-411377911.mp4',
+        room: 'Comedy-Klassiker',
+        timestamp: '2 Stunden her'
+      }
+    ],
+    interests: ['Comedy', 'Action', 'Reisen']
+  },
+  {
+    id: 2,
+    username: 'mike_movie',
+    bio: 'Sci-Fi Fan und Hobby-Regisseur',
+    age: 28,
+    introVideo: '/uploads/introVideo-1753378520383-338249915.mp4',
+    recentPosts: [
+      {
+        video: '/uploads/postVideo-1753378550691-411377911.mp4',
+        room: 'Sci-Fi Universum',
+        timestamp: '1 Tag her'
+      },
+      {
+        video: '/uploads/postVideo-1753378550691-411377911.mp4',
+        room: 'Filmproduktion',
+        timestamp: '3 Tage her'
+      }
+    ],
+    interests: ['Sci-Fi', 'Filmproduktion', 'Gaming']
+  },
+  {
+    id: 3,
+    username: 'anna_artist',
+    bio: 'Indie-Filme und Kunsthaus-Kino',
+    age: 24,
+    introVideo: '/uploads/introVideo-1753378520383-338249915.mp4',
+    recentPosts: [
+      {
+        video: '/uploads/postVideo-1753378550691-411377911.mp4',
+        room: 'Indie & Arthouse',
+        timestamp: '5 Stunden her'
+      }
+    ],
+    interests: ['Indie-Filme', 'Kunst', 'Fotografie']
+  }
+]);
       } finally {
         setLoading(false);
       }
@@ -178,7 +178,7 @@ const SwipeInterface = ({ onMatch }) => {
               onPlay={() => setShowIntroThumbnail(false)}
               onLoadedMetadata={() => setShowIntroThumbnail(false)}
             >
-              <source src={`http://localhost:3001${currentUserData.introVideo}`} type="video/mp4" />
+              <source src={currentUserData.introVideo} type="video/mp4" />
               Dein Browser unterstützt keine Videos.
             </video>
             
@@ -226,7 +226,7 @@ const SwipeInterface = ({ onMatch }) => {
                     onPlay={() => setShowPostThumbnails(prev => ({ ...prev, [index]: false }))}
                     onLoadedMetadata={() => setShowPostThumbnails(prev => ({ ...prev, [index]: false }))}
                   >
-                    <source src={`http://localhost:3001${post.video}`} type="video/mp4" />
+                    <source src={post.video} type="video/mp4" />
                   </video>
                   
                   {showPostThumbnails[index] !== false && (
